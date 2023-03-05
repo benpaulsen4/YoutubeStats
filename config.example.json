@@ -1,0 +1,98 @@
+//Important: You *must* rename your final config file to config.json for the application to work
+{
+  //This section defines general configuration options
+  "general": {
+    //A Youtube API v3 key, this must be obtained from Google API Console using a Google account
+    "apiKey": "AIzaSyD2mCLnK0xXan3A9dQUNupQR5xUh4zWB1A",
+    //The report type you want to generate. Must be one of: "console", "csv", "analytics".
+    // Console - will get current subscriber counts of creators listed and output them to the console
+    // CSV - will get current subscriber counts of creators listed and output them to console, *as well as* write these values in CSV format to the 'Results' folder for storage
+    // Analytics - will do everything the CSV report does, *as well as* display the sub-group average and % change from the previous record in the console as read from the CSV (if it exists). 
+    //  It will also generate PNG graphs of the subscriber count change over time for each sub-group, and sub-group average graphs for each group using CSV data. 
+    "reportType": "analytics"
+  },
+  //This section defines the groups of YouTube creators to collect information on, it *must* follow the format:
+  // "groups": {
+  //   "<group-name>": {
+  //     "<sub-group1-name>": ChannelSummary[],
+  //     "<sub-group2-name>": ChannelSummary[],
+  //     ...
+  //   },
+  //   ...
+  // }
+  "groups": {
+    "IdolCorp": {
+      "E-Sekai": [
+        //Inside of a sub-group is an array of channel summaries, which contain information necessary to collect and handle subscriber statistics
+        {
+          //The name of the creator, used for storage and display of their statistics
+          "name": "Rin Penrose",
+          //The channel ID of the creator, used to get their subscriber count from the API. See readme for details
+          "id": "UCpZIbzoEC_3rZglErpQkbDg"
+        },
+        {
+          "name": "Yuko Yurei",
+          "id": "UCcIcMRVpNqWQn4WnDhRASAw"
+        },
+        {
+          "name": "Juna Unagi",
+          "id": "UCTFCSCPvqjXEs3zq91aeOVg"
+        },
+        {
+          "name": "Pochi Wanmaru",
+          "id": "UCP0csSl19lOSNwJGCFsJqAQ"
+        },
+        {
+          "name": "Fuyo Cloverfield",
+          "id": "UC8zgKaS8LiyL28mdhRC2nBg"
+        }
+      ]
+    },
+    "NijisanjiEN": {
+      "Luxiem": [
+        {
+          "name": "Ike Eveland",
+          "id": "UC4yNIKGvy-YUrwYupVdLDXA"
+        },
+        {
+          "name": "Luca Kaneshiro",
+          "id": "UC7Gb7Uawe20QyFibhLl1lzA"
+        },
+        {
+          "name": "Shu Yamino",
+          "id": "UCG0rzBZV_QMP4MtWg6IjhEA"
+        },
+        {
+          "name": "Vox Akuma",
+          "id": "UCckdfYDGrjojJM28n5SHYrA"
+        },
+        {
+          "name": "Mysta Rias",
+          "id": "UCIM92Ok_spNKLVB5TsgwseQ"
+        }
+      ],
+      "Noctyx": [
+        {
+          "name": "Sonny Brisko",
+          "id": "UCuuAb_72QzK0M1USPMEl1yw"
+        },
+        {
+          "name": "Uki Violeta",
+          "id": "UChJ5FTsHOu72_5OVx0rvsvQ"
+        },
+        {
+          "name": "Alban Knox",
+          "id": "UCQ1zGxHrfEmmW4CPpBx9-qw"
+        },
+        {
+          "name": "Fulgur Ovid",
+          "id": "UCGhqxhovNfaPBpxfCruy9EA"
+        },
+        {
+          "name": "Yugo Asuma - R",
+          "id": "UCSc_KzY_9WYAx9LghggjVRA"
+        }
+      ]
+    }
+  }
+}
