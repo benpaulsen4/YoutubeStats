@@ -70,7 +70,7 @@
         public string GenerateCsvReport(bool skipConsole = false)
         {
             Console.WriteLine("Generating report...");
-            
+
             PrepareFileStructure();
 
             var baseDirectory = Directory.GetCurrentDirectory();
@@ -78,10 +78,10 @@
             foreach (var group in data)
             {
                 Directory.SetCurrentDirectory($"{baseDirectory}/Results/{group.Key}");
-                
+
                 foreach (var generation in group.Value)
                 {
-                    ExportCsv(generation.Key, generation.Value);
+                    Csv.Export(generation.Key, generation.Value);
                 }
             }
 
@@ -106,11 +106,11 @@
             {
                 Directory.SetCurrentDirectory($"{baseDirectory}/Results/{group.Key}");
 
-                var genAverages = new Dictionary<DateTime, Dictionary<string,int>>();
+                var genAverages = new Dictionary<DateTime, Dictionary<string, int>>();
 
                 foreach (var generation in group.Value)
                 {
-                    var previousResults = ReadCsv(generation.Key);
+                    var previousResults = Csv.Read(generation.Key);
 
                     var maxIndex = previousResults.Max(row => row.Index);
                     var latestRow = previousResults.Where(row => row.Index == maxIndex).FirstOrDefault();
@@ -151,7 +151,7 @@
                         {
                             genAverages.Add(row.Date, new Dictionary<string, int>() { { generation.Key, (int)row.Values.Where(channel => !averageIgnored.Contains(channel.Key)).Select(channel => channel.Value).Average() } }); ;
                         }
-                        
+
                     }
                 }
 
@@ -177,77 +177,5 @@
                 Directory.CreateDirectory($"./Results/{group.Key}");
             }
         }
-
-        private void ExportCsv(string genName, ChannelSummary[] generation)
-        {
-            var writeHeader = !File.Exists($"{genName}.csv");
-
-            using (var writer = File.AppendText($"{genName}.csv"))
-            {
-                if (writeHeader)
-                {
-                    string header = "date,";
-                    for (int i=0; i< generation.Length; i++)
-                    {
-                        header += generation[i].Name + (i == generation.Length - 1 ? "" : ",");
-                    }
-
-                    writer.WriteLine(header);
-                }
-
-                string line = DateTime.Now.ToShortDateString() + ",";
-
-                for (int i=0; i< generation.Length; i++)
-                {
-                    line += generation[i].SubscriberCount + (i == generation.Length - 1 ? "" : ",");
-                }
-
-                writer.WriteLine(line);
-            }
-        }
-
-        private List<CsvRow> ReadCsv(string genName)
-        {
-            List<CsvRow> records = new();
-            using (var reader = File.OpenText($"{genName}.csv"))
-            {
-                var headers = reader.ReadLine()!.Split(',');
-
-                var index = 0;
-
-                while (!reader.EndOfStream)
-                {
-                    var row = reader.ReadLine()!.Split(',');
-                    CsvRow current = new()
-                    {
-                        Index = index++,
-                        Date = DateTime.Parse(row[0])
-                    };
-
-                    for (int i = 1; i < row.Length; i++)
-                    {
-                        try
-                        {
-                            current.Values.Add(headers[i], int.Parse(row[i]));
-                        }
-                        catch (Exception)
-                        {
-                            //Skip row
-                        }
-                    }
-
-                    records.Add(current);
-                }
-            }
-
-            return records;
-        }
-    }
-
-    public class CsvRow
-    {
-        public DateTime Date { get; set; }
-        public int Index { get; set; }
-        public Dictionary<string, int> Values { get; set; } = new();
     }
 }

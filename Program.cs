@@ -9,13 +9,28 @@ Console.WriteLine("Parsing config...");
 
 JObject config = JObject.Parse(File.ReadAllText(@"config.json"));
 
+var groups = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, ChannelSummary[]>>>(config["groups"]?.ToString() ?? throw new ArgumentNullException("Groups", "Config missing groups or incorrectly configured"));
+
+if (args.Contains("--undo"))
+{
+    var channelNames = groups?.Select(group => group.Value).SelectMany(gen => gen.Values).SelectMany(channels => channels).Select(channel => channel.Name).ToList();
+
+    if (channelNames == null || channelNames.Count == 0) throw new ArgumentException("Config missing groups or incorrectly configured");
+
+    foreach (var name in channelNames)
+    {
+        Csv.EraseLatestLine(name);
+    }
+
+    Console.WriteLine("Erased latest entries");
+    return;
+}
+
 var service = new YouTubeService(new BaseClientService.Initializer
 {
     ApplicationName = "Youtube Stats",
     ApiKey = config["general"]?["apiKey"]?.ToString() ?? throw new ArgumentNullException("API key", "Config missing API key or incorrectly configured")
 });
-
-var groups = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, ChannelSummary[]>>>(config["groups"]?.ToString() ?? throw new ArgumentNullException("Groups", "Config missing groups or incorrectly configured"));
 
 var parts = new List<string> { "statistics" };
 var channelIds = new List<string>();
