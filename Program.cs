@@ -13,13 +13,17 @@ var groups = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string,
 
 if (args.Contains("--undo"))
 {
-    var channelNames = groups?.Select(group => group.Value).SelectMany(gen => gen.Values).SelectMany(channels => channels).Select(channel => channel.Name).ToList();
-
-    if (channelNames == null || channelNames.Count == 0) throw new ArgumentException("Config missing groups or incorrectly configured");
-
-    foreach (var name in channelNames)
+    if (groups == null) throw new ArgumentException("Config missing groups or incorrectly configured");
+    
+    var baseDirectory = Directory.GetCurrentDirectory();
+    foreach (var group in groups)
     {
-        Csv.EraseLatestLine(name);
+        Directory.SetCurrentDirectory($"{baseDirectory}/Results/{group.Key}");
+
+        foreach (var generation in group.Value)
+        {
+            Csv.EraseLatestLine(generation.Key);
+        }
     }
 
     Console.WriteLine("Erased latest entries");

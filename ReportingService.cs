@@ -145,7 +145,7 @@
                     {
                         if (genAverages.TryGetValue(row.Date, out var averages))
                         {
-                            averages.Add(generation.Key, (int)row.Values.Select(channel => channel.Value).Average());
+                            averages.Add(generation.Key, (int)row.Values.Where(channel => !averageIgnored.Contains(channel.Key)).Select(channel => channel.Value).Average());
                         }
                         else
                         {

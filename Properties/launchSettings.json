@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "YoutubeStats": {
+      "commandName": "Project"
+    },
+    "Undo": {
+      "commandName": "Project",
+      "commandLineArgs": "--undo"
+    }
+  }
+}
