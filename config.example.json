@@ -3,7 +3,7 @@
   //This section defines general configuration options
   "general": {
     //A Youtube API v3 key, this must be obtained from Google API Console using a Google account
-    "apiKey": "AIzaSyD2mCLnK0xXan3A9dQUNupQR5xUh4zWB1A",
+    "apiKey": "<API-key>",
     //The report type you want to generate. Must be one of: "console", "csv", "analytics".
     // Console - will get current subscriber counts of creators listed and output them to the console
     // CSV - will get current subscriber counts of creators listed and output them to console, *as well as* write these values in CSV format to the 'Results' folder for storage
@@ -28,7 +28,9 @@
           //The name of the creator, used for storage and display of their statistics
           "name": "Rin Penrose",
           //The channel ID of the creator, used to get their subscriber count from the API. See readme for details
-          "id": "UCpZIbzoEC_3rZglErpQkbDg"
+          "id": "UCpZIbzoEC_3rZglErpQkbDg",
+          //Optional parameter allowing you to ignore this channel in sub-group averages for analytics report (for example if they have retired)
+          "ignoreInAverage": true
         },
         {
           "name": "Yuko Yurei",

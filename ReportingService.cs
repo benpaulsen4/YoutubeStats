@@ -3,10 +3,16 @@
     public class ReportingService
     {
         private readonly Dictionary<string, Dictionary<string, ChannelSummary[]>> data;
+        private List<string> averageIgnored = new();
 
         public ReportingService(Dictionary<string, Dictionary<string, ChannelSummary[]>> data)
         {
             this.data = data;
+        }
+
+        private void CurateAverageIgnoredList()
+        {
+            averageIgnored = data.Select(data => data.Value).SelectMany(gens => gens.Values).SelectMany(channels => channels).Where(channel => channel.IgnoreInAverage == true).Select(channel => channel.Name).ToList();
         }
 
         public void GenerateConsoleReport(bool showChange = false, Dictionary<string, double>? changes = null)
@@ -21,7 +27,7 @@
                 Console.WriteLine("==============================");
                 foreach (var generation in group.Value)
                 {
-                    var average = generation.Value.Select(channel => channel.SubscriberCount).Average();
+                    var average = generation.Value.Where(channel => channel.IgnoreInAverage != true).Select(channel => channel.SubscriberCount).Average();
                     Console.WriteLine("    " + $"{generation.Key} (Avg. {average:n0})");
                     Console.WriteLine("    --------------------");
 
@@ -93,6 +99,9 @@
             Dictionary<string, double> changes = new();
 
             Console.WriteLine("Processing analytics...");
+
+            CurateAverageIgnoredList();
+
             foreach (var group in data)
             {
                 Directory.SetCurrentDirectory($"{baseDirectory}/Results/{group.Key}");
@@ -140,7 +149,7 @@
                         }
                         else
                         {
-                            genAverages.Add(row.Date, new Dictionary<string, int>() { { generation.Key, (int)row.Values.Select(channel => channel.Value).Average() } });
+                            genAverages.Add(row.Date, new Dictionary<string, int>() { { generation.Key, (int)row.Values.Where(channel => !averageIgnored.Contains(channel.Key)).Select(channel => channel.Value).Average() } }); ;
                         }
                         
                     }
