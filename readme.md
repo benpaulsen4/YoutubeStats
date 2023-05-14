@@ -37,3 +37,16 @@ The app is pretty full featured, but there are some known limitations of the Ana
 - All creators in a sub-group CSV must have a data entry for every single date that any other creator has an entry for, or charts will break
 
 Basically, if you use the application to collect all data itself, and don't try to manually import data, it should be mostly fine. The only time these limitations will present themselves in normal use is if a creator's channel is deleted or similar.
+
+## TODO
+The following improvements will be implemented in a future version:
+- [ ] Flatten internal data structures
+  - This will make working with data internally much simpler, and will also increase efficiency and reduce RAM usage
+  - (!) Must be performed in a way which does not alter the input or export formats
+- [ ] Implement console table library
+  - This will make output data more readable by aligning results to a table grid
+- [ ] Allow writing analytics reports to text files
+  - This will make storing historical copies of analytics simpler
+  - (?) A GUI could invalidate the need for this by generating analytics on the fly for any point in time selected
+- [ ] Implement a GUI 
+  - This is just a concept at this point, but as the graphing library supports WPF, a GUI could be created to make viewing analytics data far simpler
