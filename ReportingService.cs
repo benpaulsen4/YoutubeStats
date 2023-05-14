@@ -15,7 +15,7 @@
             averageIgnored = data.Select(data => data.Value).SelectMany(gens => gens.Values).SelectMany(channels => channels).Where(channel => channel.IgnoreInAverage == true).Select(channel => channel.Name).ToList();
         }
 
-        public void GenerateConsoleReport(bool showChange = false, Dictionary<string, double>? changes = null)
+        public void GenerateConsoleReport(bool showChange = false, Dictionary<string, (int, double)>? changes = null)
         {
             Console.WriteLine();
             Console.WriteLine($"Youtube Stats Report, {DateTime.Now}");
@@ -43,11 +43,11 @@
                             {
                                 if (changes?.TryGetValue(channel.Name, out var change) == true)
                                 {
-                                    Console.WriteLine("        " + $"{channel.Name} -> {channel.SubscriberCount:n0} ({change:n3}% change)");
+                                    Console.WriteLine("        " + $"{channel.Name} -> {channel.SubscriberCount:n0} : {change.Item1:n0} {(change.Item1 > 0 ? "increase": "decrease")} ({change.Item2:n3}%)");
                                 }
                                 else
                                 {
-                                    Console.WriteLine("        " + $"{channel.Name} -> {channel.SubscriberCount:n0} (Change unknown)");
+                                    Console.WriteLine("        " + $"{channel.Name} -> {channel.SubscriberCount:n0} : change unknown)");
                                 }
 
                             }
@@ -96,7 +96,7 @@
         public void GenerateAnalyticsReport()
         {
             var baseDirectory = GenerateCsvReport(true);
-            Dictionary<string, double> changes = new();
+            Dictionary<string, (int, double)> changes = new();
 
             Console.WriteLine("Processing analytics...");
 
@@ -124,8 +124,9 @@
                             {
                                 if (channel.Key == prevChannel.Key)
                                 {
-                                    double percentChange = ((channel.Value - prevChannel.Value) / (double)channel.Value) * 100;
-                                    changes.Add(channel.Key, percentChange);
+                                    double percentChange = ((channel.Value - prevChannel.Value) / (double)prevChannel.Value) * 100;
+                                    int exactChange = channel.Value - prevChannel.Value;
+                                    changes.Add(channel.Key, (exactChange, percentChange));
                                     break;
                                 }
                             }
