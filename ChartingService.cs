@@ -2,12 +2,12 @@
 {
     internal static class ChartingService
     {
-        public static void GenerateGenerationGraph(List<CsvRow> generationCsv, string genName)
+        public static void GenerateSubGroupGraph(List<CsvRow> subGroupCsv, string subGroupName)
         {
             List<double> x = new();
             Dictionary<string, List<double>> y = new();
 
-            foreach (var row in generationCsv)
+            foreach (var row in subGroupCsv)
             {
                 x.Add(row.Date.ToOADate());
 
@@ -46,37 +46,37 @@
             legend.FontSize = 20;
             legend.Orientation = ScottPlot.Orientation.Horizontal;
 
-            plt.SaveFig($"{genName}.png");
+            plt.SaveFig($"{subGroupName}.png");
         }
 
-        public static void GenerateGroupGraph(Dictionary<DateTime, Dictionary<string, int>> genAveragesUnsorted, string groupName)
+        public static void GenerateGroupGraph(Dictionary<DateTime, Dictionary<string, int>> subGroupAveragesUnsorted, string groupName)
         {
-            var genAverages = genAveragesUnsorted.OrderBy(item => item.Key);
-            double[] x = genAverages.Select(item => item.Key.ToOADate()).ToArray();
+            var subGroupAverages = subGroupAveragesUnsorted.OrderBy(item => item.Key);
+            double[] x = subGroupAverages.Select(item => item.Key.ToOADate()).ToArray();
             Dictionary<string, List<double>> y = new();
             Dictionary<string, double> offsets = new();
 
-            foreach (var record in genAverages)
+            foreach (var record in subGroupAverages)
             {
-                foreach (var genAverage in record.Value)
+                foreach (var subGroupAverage in record.Value)
                 {
-                    var offsetExists = offsets.TryGetValue(genAverage.Key, out var currentOffset);
+                    var offsetExists = offsets.TryGetValue(subGroupAverage.Key, out var currentOffset);
                     if (!offsetExists)
                     {
-                        offsets.Add(genAverage.Key, record.Key.ToOADate());
+                        offsets.Add(subGroupAverage.Key, record.Key.ToOADate());
                     }
                     else if (currentOffset > record.Key.ToOADate())
                     {
-                        offsets[genAverage.Key] = record.Key.ToOADate();
+                        offsets[subGroupAverage.Key] = record.Key.ToOADate();
                     }
 
-                    if (y.TryGetValue(genAverage.Key, out var doubles))
+                    if (y.TryGetValue(subGroupAverage.Key, out var doubles))
                     {
-                        doubles.Add(genAverage.Value);
+                        doubles.Add(subGroupAverage.Value);
                     }
                     else
                     {
-                        y.Add(genAverage.Key, new List<double>() { genAverage.Value });
+                        y.Add(subGroupAverage.Key, new List<double>() { subGroupAverage.Value });
                     }
                 }
             }

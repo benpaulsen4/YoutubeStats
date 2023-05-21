@@ -1,18 +1,14 @@
 ﻿namespace YoutubeStats
 {
     public class ReportingService
-    {
-        private readonly Dictionary<string, Dictionary<string, ChannelSummary[]>> data;
-        private List<string> averageIgnored = new();
+    {   
+        private readonly ChannelSummary[] data;
+        private readonly Dictionary<string, string[]> groupStructure;
 
-        public ReportingService(Dictionary<string, Dictionary<string, ChannelSummary[]>> data)
+        public ReportingService(ChannelSummary[] data, Dictionary<string, string[]> groupStructure)
         {
             this.data = data;
-        }
-
-        private void CurateAverageIgnoredList()
-        {
-            averageIgnored = data.Select(data => data.Value).SelectMany(gens => gens.Values).SelectMany(channels => channels).Where(channel => channel.IgnoreInAverage == true).Select(channel => channel.Name).ToList();
+            this.groupStructure = groupStructure;
         }
 
         public void GenerateConsoleReport(bool showChange = false, Dictionary<string, (int, double)>? changes = null)
@@ -21,67 +17,67 @@
             Console.WriteLine($"Youtube Stats Report, {DateTime.Now}");
             Console.WriteLine();
 
-            foreach (var group in data)
-            {
-                Console.WriteLine(group.Key);
-                Console.WriteLine("==============================");
-                foreach (var generation in group.Value)
-                {
-                    var average = generation.Value.Where(channel => channel.IgnoreInAverage != true).Select(channel => channel.SubscriberCount).Average();
-                    Console.WriteLine("    " + $"{generation.Key} (Avg. {average:n0})");
-                    Console.WriteLine("    --------------------");
+            //foreach (var group in data)
+            //{
+            //    Console.WriteLine(group.Key);
+            //    Console.WriteLine("==============================");
+            //    foreach (var generation in group.Value)
+            //    {
+            //        var average = generation.Value.Where(channel => channel.IgnoreInAverage != true).Select(channel => channel.SubscriberCount).Average();
+            //        Console.WriteLine("    " + $"{generation.Key} (Avg. {average:n0})");
+            //        Console.WriteLine("    --------------------");
 
-                    var sortedChannels = generation.Value.ToList();
-                    sortedChannels.Sort();
-                    sortedChannels.Reverse();
+            //        var sortedChannels = generation.Value.ToList();
+            //        sortedChannels.Sort();
+            //        sortedChannels.Reverse();
 
-                    foreach (var channel in sortedChannels)
-                    {
-                        if (channel.SubscriberCount != null)
-                        {
-                            if (showChange)
-                            {
-                                if (changes?.TryGetValue(channel.Name, out var change) == true)
-                                {
-                                    Console.WriteLine("        " + $"{channel.Name} -> {channel.SubscriberCount:n0} : {change.Item1:n0} {(change.Item1 > 0 ? "increase": "decrease")} ({change.Item2:n3}%)");
-                                }
-                                else
-                                {
-                                    Console.WriteLine("        " + $"{channel.Name} -> {channel.SubscriberCount:n0} : change unknown)");
-                                }
+            //        foreach (var channel in sortedChannels)
+            //        {
+            //            if (channel.SubscriberCount != null)
+            //            {
+            //                if (showChange)
+            //                {
+            //                    if (changes?.TryGetValue(channel.Name, out var change) == true)
+            //                    {
+            //                        Console.WriteLine("        " + $"{channel.Name} -> {channel.SubscriberCount:n0} : {change.Item1:n0} {(change.Item1 > 0 ? "increase": "decrease")} ({change.Item2:n3}%)");
+            //                    }
+            //                    else
+            //                    {
+            //                        Console.WriteLine("        " + $"{channel.Name} -> {channel.SubscriberCount:n0} : change unknown)");
+            //                    }
 
-                            }
-                            else
-                            {
-                                Console.WriteLine("        " + $"{channel.Name} -> {channel.SubscriberCount:n0}");
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("        " + $"{channel.Name} -> API could not find channel with this ID!");
-                        }
-                    }
+            //                }
+            //                else
+            //                {
+            //                    Console.WriteLine("        " + $"{channel.Name} -> {channel.SubscriberCount:n0}");
+            //                }
+            //            }
+            //            else
+            //            {
+            //                Console.WriteLine("        " + $"{channel.Name} -> API could not find channel with this ID!");
+            //            }
+            //        }
 
-                    Console.WriteLine();
-                }
-            }
+            //        Console.WriteLine();
+            //    }
+            //}
         }
 
         public string GenerateCsvReport(bool skipConsole = false)
         {
-            Console.WriteLine("Generating report...");
+            Console.WriteLine("Saving CSV...");
 
             PrepareFileStructure();
 
             var baseDirectory = Directory.GetCurrentDirectory();
 
-            foreach (var group in data)
+            foreach (var group in groupStructure)
             {
                 Directory.SetCurrentDirectory($"{baseDirectory}/Results/{group.Key}");
 
-                foreach (var generation in group.Value)
+                foreach (var subGroup in group.Value)
                 {
-                    Csv.Export(generation.Key, generation.Value);
+                    Csv.Export(subGroup, data.Where(channel => channel.SubGroup == subGroup).ToArray());
                 }
             }
 
@@ -100,17 +96,15 @@
 
             Console.WriteLine("Processing analytics...");
 
-            CurateAverageIgnoredList();
-
-            foreach (var group in data)
+            foreach (var group in groupStructure)
             {
                 Directory.SetCurrentDirectory($"{baseDirectory}/Results/{group.Key}");
 
-                var genAverages = new Dictionary<DateTime, Dictionary<string, int>>();
+                var subGroupAverages = new Dictionary<DateTime, Dictionary<string, int>>();
 
-                foreach (var generation in group.Value)
+                foreach (var subGroup in group.Value)
                 {
-                    var previousResults = Csv.Read(generation.Key);
+                    var previousResults = Csv.Read(subGroup);
 
                     var maxIndex = previousResults.Max(row => row.Index);
                     var latestRow = previousResults.Where(row => row.Index == maxIndex).FirstOrDefault();
@@ -135,22 +129,24 @@
 
                     try
                     {
-                        ChartingService.GenerateGenerationGraph(previousResults, generation.Key);
+                        ChartingService.GenerateSubGroupGraph(previousResults, subGroup);
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine($"Error generating {generation.Key} generation graph: {e.Message}");
+                        Console.WriteLine($"Error generating {subGroup} sub-group graph: {e.Message}");
                     }
+
+                    var averageIgnored = data.Where(channel => channel.IgnoreInAverage == true).Select(channel => channel.Name).ToArray();
 
                     foreach (var row in previousResults)
                     {
-                        if (genAverages.TryGetValue(row.Date, out var averages))
+                        if (subGroupAverages.TryGetValue(row.Date, out var averages))
                         {
-                            averages.Add(generation.Key, (int)row.Values.Where(channel => !averageIgnored.Contains(channel.Key)).Select(channel => channel.Value).Average());
+                            averages.Add(subGroup, (int)row.Values.Where(channel => !averageIgnored.Contains(channel.Key)).Select(channel => channel.Value).Average());
                         }
                         else
                         {
-                            genAverages.Add(row.Date, new Dictionary<string, int>() { { generation.Key, (int)row.Values.Where(channel => !averageIgnored.Contains(channel.Key)).Select(channel => channel.Value).Average() } }); ;
+                            subGroupAverages.Add(row.Date, new Dictionary<string, int>() { { subGroup, (int)row.Values.Where(channel => !averageIgnored.Contains(channel.Key)).Select(channel => channel.Value).Average() } }); ;
                         }
 
                     }
@@ -158,7 +154,7 @@
 
                 try
                 {
-                    ChartingService.GenerateGroupGraph(genAverages, group.Key);
+                    ChartingService.GenerateGroupGraph(subGroupAverages, group.Key);
                 }
                 catch (Exception e)
                 {
@@ -173,7 +169,7 @@
         {
             Directory.CreateDirectory("./Results/");
 
-            foreach (var group in data)
+            foreach (var group in groupStructure)
             {
                 Directory.CreateDirectory($"./Results/{group.Key}");
             }

@@ -25,7 +25,7 @@ If you encounter an error, its entirely possible that it could be a bug. Here ar
 - "statistics.SubscriberCount is null" (or similar): The API didn't return information for a channel you requested, make sure every ID is correct
 - "Config missing report type or incorrectly configured" / "Unknown report type": You have not specified a report type to generate correctly
 - "Unable to read/write file/folder" (or similar): Something prevented the app from accessing a data file in the Results folder, probably OS permissions related
-- "Error generating <name> generation/group graph: Xs and Ys are not of the same length" (or similar): The charting library failed to read the data stored in the CSVs to generate this graph, probably because of a limitation in how files are read (see below)
+- "Error generating <name> sub-group/group graph: Xs and Ys are not of the same length" (or similar): The charting library failed to read the data stored in the CSVs to generate this graph, probably because of a limitation in how files are read (see below)
 
 ### Limitations
 The app is pretty full featured, but there are some known limitations of the Analytics reports:

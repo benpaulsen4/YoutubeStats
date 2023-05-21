@@ -6,6 +6,7 @@
         public string Name { get; set; } = null!;
         public int? SubscriberCount { get; set; }
         public bool? IgnoreInAverage { get; set; }
+        public string? SubGroup { get; set; }
 
         public ChannelSummary(string id, string name, int? subscriberCount)
         {

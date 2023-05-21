@@ -2,18 +2,18 @@
 {
     internal class Csv
     {
-        public static void Export(string genName, ChannelSummary[] generation)
+        public static void Export(string subGroupName, ChannelSummary[] subGroup)
         {
-            var writeHeader = !File.Exists($"{genName}.csv");
+            var writeHeader = !File.Exists($"{subGroupName}.csv");
 
-            using (var writer = File.AppendText($"{genName}.csv"))
+            using (var writer = File.AppendText($"{subGroupName}.csv"))
             {
                 if (writeHeader)
                 {
                     string header = "date,";
-                    for (int i = 0; i < generation.Length; i++)
+                    for (int i = 0; i < subGroup.Length; i++)
                     {
-                        header += generation[i].Name + (i == generation.Length - 1 ? "" : ",");
+                        header += subGroup[i].Name + (i == subGroup.Length - 1 ? "" : ",");
                     }
 
                     writer.WriteLine(header);
@@ -21,19 +21,19 @@
 
                 string line = DateTime.Now.ToShortDateString() + ",";
 
-                for (int i = 0; i < generation.Length; i++)
+                for (int i = 0; i < subGroup.Length; i++)
                 {
-                    line += generation[i].SubscriberCount + (i == generation.Length - 1 ? "" : ",");
+                    line += subGroup[i].SubscriberCount + (i == subGroup.Length - 1 ? "" : ",");
                 }
 
                 writer.WriteLine(line);
             }
         }
 
-        public static List<CsvRow> Read(string genName)
+        public static List<CsvRow> Read(string subGroupName)
         {
             List<CsvRow> records = new();
-            using (var reader = File.OpenText($"{genName}.csv"))
+            using (var reader = File.OpenText($"{subGroupName}.csv"))
             {
                 var headers = reader.ReadLine()!.Split(',');
 
