@@ -40,11 +40,12 @@ Basically, if you use the application to collect all data itself, and don't try 
 
 ## TODO
 The following improvements will be implemented in a future version:
-- [ ] Flatten internal data structures
+- [x] Flatten internal data structures
   - This will make working with data internally much simpler, and will also increase efficiency and reduce RAM usage
   - (!) Must be performed in a way which does not alter the input or export formats
-- [ ] Implement console table library
+- [x] Implement console table library
   - This will make output data more readable by aligning results to a table grid
+- [ ] Add new analytics metrics
 - [ ] Allow writing analytics reports to text files
   - This will make storing historical copies of analytics simpler
   - (?) A GUI could invalidate the need for this by generating analytics on the fly for any point in time selected

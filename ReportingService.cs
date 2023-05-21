@@ -1,71 +1,32 @@
-﻿namespace YoutubeStats
+﻿using Spectre.Console;
+
+namespace YoutubeStats
 {
     public class ReportingService
     {   
         private readonly ChannelSummary[] data;
         private readonly Dictionary<string, string[]> groupStructure;
+        private readonly StatusContext statusContext;
 
-        public ReportingService(ChannelSummary[] data, Dictionary<string, string[]> groupStructure)
+        public ReportingService(ChannelSummary[] data, Dictionary<string, string[]> groupStructure, StatusContext statusContext)
         {
             this.data = data;
             this.groupStructure = groupStructure;
+            this.statusContext = statusContext;
         }
 
-        public void GenerateConsoleReport(bool showChange = false, Dictionary<string, (int, double)>? changes = null)
+        public void GenerateConsoleReport(Dictionary<string, (int, double)>? changes = null)
         {
-            Console.WriteLine();
-            Console.WriteLine($"Youtube Stats Report, {DateTime.Now}");
-            Console.WriteLine();
+            AnsiConsole.WriteLine();
+            AnsiConsole.MarkupLine($"Youtube Stats Report - [blue]{DateTime.Now}[/]");
+            AnsiConsole.WriteLine();
 
-            //foreach (var group in data)
-            //{
-            //    Console.WriteLine(group.Key);
-            //    Console.WriteLine("==============================");
-            //    foreach (var generation in group.Value)
-            //    {
-            //        var average = generation.Value.Where(channel => channel.IgnoreInAverage != true).Select(channel => channel.SubscriberCount).Average();
-            //        Console.WriteLine("    " + $"{generation.Key} (Avg. {average:n0})");
-            //        Console.WriteLine("    --------------------");
-
-            //        var sortedChannels = generation.Value.ToList();
-            //        sortedChannels.Sort();
-            //        sortedChannels.Reverse();
-
-            //        foreach (var channel in sortedChannels)
-            //        {
-            //            if (channel.SubscriberCount != null)
-            //            {
-            //                if (showChange)
-            //                {
-            //                    if (changes?.TryGetValue(channel.Name, out var change) == true)
-            //                    {
-            //                        Console.WriteLine("        " + $"{channel.Name} -> {channel.SubscriberCount:n0} : {change.Item1:n0} {(change.Item1 > 0 ? "increase": "decrease")} ({change.Item2:n3}%)");
-            //                    }
-            //                    else
-            //                    {
-            //                        Console.WriteLine("        " + $"{channel.Name} -> {channel.SubscriberCount:n0} : change unknown)");
-            //                    }
-
-            //                }
-            //                else
-            //                {
-            //                    Console.WriteLine("        " + $"{channel.Name} -> {channel.SubscriberCount:n0}");
-            //                }
-            //            }
-            //            else
-            //            {
-            //                Console.WriteLine("        " + $"{channel.Name} -> API could not find channel with this ID!");
-            //            }
-            //        }
-
-            //        Console.WriteLine();
-            //    }
-            //}
+            ConsoleWriter.WriteReport(data, groupStructure, changes);
         }
 
         public string GenerateCsvReport(bool skipConsole = false)
         {
-            Console.WriteLine("Saving CSV...");
+            statusContext.Status("Saving CSV...");
 
             PrepareFileStructure();
 
@@ -94,7 +55,7 @@
             var baseDirectory = GenerateCsvReport(true);
             Dictionary<string, (int, double)> changes = new();
 
-            Console.WriteLine("Processing analytics...");
+            statusContext.Status("Processing analytics...");
 
             foreach (var group in groupStructure)
             {
@@ -133,7 +94,7 @@
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine($"Error generating {subGroup} sub-group graph: {e.Message}");
+                        AnsiConsole.MarkupLine($"[red]Error[/] generating {subGroup} sub-group graph: {e.Message}");
                     }
 
                     var averageIgnored = data.Where(channel => channel.IgnoreInAverage == true).Select(channel => channel.Name).ToArray();
@@ -158,11 +119,11 @@
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine($"Error generating {group.Key} group graph: {e.Message}");
+                    AnsiConsole.MarkupLine($"[red]Error[/] generating {group.Key} group graph: {e.Message}");
                 }
             }
 
-            GenerateConsoleReport(true, changes);
+            GenerateConsoleReport(changes);
         }
 
         private void PrepareFileStructure()
