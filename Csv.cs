@@ -4,30 +4,43 @@
     {
         public static void Export(string subGroupName, ChannelSummary[] subGroup)
         {
-            var writeHeader = !File.Exists($"{subGroupName}.csv");
+            var fileExists = File.Exists($"{subGroupName}.csv");
+            var headers = new List<string>();
 
-            using (var writer = File.AppendText($"{subGroupName}.csv"))
+            if (fileExists)
             {
-                if (writeHeader)
-                {
-                    string header = "date,";
-                    for (int i = 0; i < subGroup.Length; i++)
-                    {
-                        header += subGroup[i].Name + (i == subGroup.Length - 1 ? "" : ",");
-                    }
+                using var reader = File.OpenText($"{subGroupName}.csv");
+                headers = reader.ReadLine()!.Split(',').ToList();
+                headers.Remove("date");
+            }
 
-                    writer.WriteLine(header);
-                }
+            using var writer = File.AppendText($"{subGroupName}.csv");
 
-                string line = DateTime.Now.ToShortDateString() + ",";
-
+            if (!fileExists)
+            {
+                string headerLine = "date,";
                 for (int i = 0; i < subGroup.Length; i++)
                 {
-                    line += subGroup[i].SubscriberCount + (i == subGroup.Length - 1 ? "" : ",");
+                    headerLine += subGroup[i].Name + (i == subGroup.Length - 1 ? "" : ",");
+                    headers.Add(subGroup[i].Name);
                 }
 
-                writer.WriteLine(line);
+                writer.WriteLine(headerLine);
             }
+
+
+
+            string line = DateTime.Now.ToShortDateString() + ",";
+
+            // It is a known limitation here that this will not include data that does not already have a header in the file.
+            // This is in-line with the limitation of the program in not being able to add new sub-group members on the fly.
+            // The goal here is simply to make sure the order of channels is correct for each write.
+            for (int i = 0; i < headers.Count; i++)
+            {
+                line += subGroup.First(channel => channel.Name == headers[i]).SubscriberCount + (i == subGroup.Length - 1 ? "" : ",");
+            }
+
+            writer.WriteLine(line);
         }
 
         public static List<CsvRow> Read(string subGroupName)
@@ -67,10 +80,10 @@
             return records;
         }
 
-        public static void EraseLatestLine(string genName)
+        public static void EraseLatestLine(string subGroupName)
         {
-            var lines = File.ReadAllLines($"{genName}.csv");
-            File.WriteAllLines($"{genName}.csv", lines.Take(lines.Length - 1));
+            var lines = File.ReadAllLines($"{subGroupName}.csv");
+            File.WriteAllLines($"{subGroupName}.csv", lines.Take(lines.Length - 1));
         }
     }
 
