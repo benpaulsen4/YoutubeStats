@@ -28,13 +28,15 @@ If you encounter an error, its entirely possible that it could be a bug. Here ar
 - "Error generating <name> sub-group/group graph: Xs and Ys are not of the same length" (or similar): The charting library failed to read the data stored in the CSVs to generate this graph, probably because of a limitation in how files are read (see below)
 
 ### Limitations
-The app is pretty full featured, but there are some known limitations of the Analytics reports:
+There are some known limitations of the Analytics reports:
 - Data can not be (officially) imported - it is possible, but must be done manually and will probably break things until you iron out the data to adhere to the other limitations
 - Creators cannot be renamed once they have had their initial data CSV generated (unless you also change it in the file)
 - New creators can't be added to a sub-group once their CSV is created, or charts will break
-- Creators can't be deleted from or rearranged in a sub-group unless you manually delete them from the CSV as well, or the CSV writer will write data in the wrong columns
+- Creators can't be deleted from or ~~rearranged~~ in a sub-group unless you manually delete them from the CSV as well, or the CSV writer will write data in the wrong columns
+  - [Update] From v2 onwards, the csv writer will now account for potential reordering of creators in the configuration file
 - You can add new groups and sub-groups to existing groups once data has been collected, but don't rename them unless you also rename the files/folders
 - All creators in a sub-group CSV must have a data entry for every single date that any other creator has an entry for, or charts will break
+- [New] From v2 onwards, creators can no longer have the same name (even if they are in different groups/sub-groups) to allow for efficiency improvements
 
 Basically, if you use the application to collect all data itself, and don't try to manually import data, it should be mostly fine. The only time these limitations will present themselves in normal use is if a creator's channel is deleted or similar.
 
@@ -45,7 +47,11 @@ The following improvements will be implemented in a future version:
   - (!) Must be performed in a way which does not alter the input or export formats
 - [x] Implement console table library
   - This will make output data more readable by aligning results to a table grid
-- [ ] Add new analytics metrics
+- [x] Add new analytics metrics
+  - New metrics are lifetime/recent Monthly Average Growth which can help indicate a channels performance relative to its past performance and its peers
+  - From the new metrics, a prediction system has been introduced to predict how many subscribers the channel will have in 6 months
+- [ ] Translate channel handles to channel IDs automatically
+  - As Youtube transitions away from publicly displaying IDs, it becomes harder to get them, this would greatly simplify things
 - [ ] Allow writing analytics reports to text files
   - This will make storing historical copies of analytics simpler
   - (?) A GUI could invalidate the need for this by generating analytics on the fly for any point in time selected
