@@ -1,4 +1,4 @@
-﻿namespace YoutubeStats
+﻿namespace YoutubeStats.Models
 {
     public class AnalyticsPackage
     {
@@ -7,7 +7,7 @@
         public Dictionary<string, int> RecentMonthlyAverageGrowth { get; set; }
         public Dictionary<string, int> Prediction { get; set; }
 
-        public AnalyticsPackage() 
+        public AnalyticsPackage()
         {
             Change = new();
             LifetimeMonthlyAverageGrowth = new();

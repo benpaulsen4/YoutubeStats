@@ -1,6 +1,7 @@
 ﻿using Spectre.Console;
+using YoutubeStats.Models;
 
-namespace YoutubeStats
+namespace YoutubeStats.Utilities
 {
     public static class ConsoleWriter
     {
@@ -34,7 +35,7 @@ namespace YoutubeStats
 
             var table = new Table
             {
-                Title = new TableTitle($"[bold]{name}[/] (Avg. {subGroupAverage:n0})", new Style(foreground: Color.PaleVioletRed1)),
+                Title = new TableTitle($"[bold]{name}[/] (Avg. {subGroupAverage:n0})", new Style(foreground: Color.LightSkyBlue1)),
                 Border = TableBorder.Rounded
             };
 
@@ -47,7 +48,7 @@ namespace YoutubeStats
 
             if (package != null)
             {
-                table.AddColumns("Change","% Change","Lifetime MAG","Recent MAG", "Prediction");
+                table.AddColumns("Change", "% Change", "Lifetime MAG", "Recent MAG", "Prediction");
 
                 foreach (var member in sortedMembers)
                 {
@@ -57,7 +58,8 @@ namespace YoutubeStats
                         var recentMAG = package.RecentMonthlyAverageGrowth.GetNullable(member.Name);
                         var prediction = package.Prediction.GetNullable(member.Name);
 
-                        table.AddRow(member.Name, member.SubscriberCount!.Value.ToString("n0") ?? "", $"{(change.actual > 0 ? "[green]▲[/]" : change.actual == 0 ? "[blue]=[/]" : "[red]▼[/]")} {change.actual:n0}", $"{change.percentage:n3}%", $"{lifetimeMAG:n0}", $"{recentMAG:n0}", $"{prediction:n0}");
+                        table.AddRow(member.Name, member.SubscriberCount!.Value.ToString("n0") ?? "", $"{(change.actual > 0 ? "[green]▲[/]" : change.actual == 0 ? "[blue]=[/]" : "[red]▼[/]")} {change.actual:n0}", 
+                            $"{change.percentage:n3}%", $"{lifetimeMAG:n0}", $"{recentMAG:n0}", $"{prediction:n0}");
                     }
                     else
                     {

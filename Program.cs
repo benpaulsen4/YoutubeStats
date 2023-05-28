@@ -4,6 +4,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Spectre.Console;
 using YoutubeStats;
+using YoutubeStats.Models;
+using YoutubeStats.Utilities;
 
 AnsiConsole.MarkupLine("Youtube Stats Collector [green]v2[/] by [bold]Ben Paulsen[/]");
 
@@ -19,7 +21,7 @@ await AnsiConsole.Status().Spinner(Spinner.Known.Dots).SpinnerStyle(Style.Parse(
     {
         context.Status("Erasing...");
         if (groups == null) throw new ArgumentException("Config missing groups or incorrectly configured");
-    
+
         var baseDirectory = Directory.GetCurrentDirectory();
         foreach (var group in groups)
         {
@@ -66,7 +68,8 @@ await AnsiConsole.Status().Spinner(Spinner.Known.Dots).SpinnerStyle(Style.Parse(
 
     context.Status("Parsing response...");
 
-    foreach(var channel in channels) { 
+    foreach (var channel in channels)
+    {
         foreach (var channelSubs in result.Items)
         {
             if (channelSubs.Id == channel.Id)

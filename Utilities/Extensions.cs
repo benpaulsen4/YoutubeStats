@@ -1,6 +1,6 @@
 ﻿// Ignore Spelling: Nullable
 
-namespace YoutubeStats
+namespace YoutubeStats.Utilities
 {
     public static class Extensions
     {
@@ -11,7 +11,7 @@ namespace YoutubeStats
             if (dictionary.TryGetValue(key, out var value))
             {
                 return value;
-            } 
+            }
             else
             {
                 return null;

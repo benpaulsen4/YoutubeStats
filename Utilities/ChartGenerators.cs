@@ -1,6 +1,6 @@
-﻿namespace YoutubeStats
+﻿namespace YoutubeStats.Utilities
 {
-    internal static class ChartingService
+    internal static class ChartGenerators
     {
         public static void GenerateSubGroupGraph(List<CsvRow> subGroupCsv, string subGroupName)
         {

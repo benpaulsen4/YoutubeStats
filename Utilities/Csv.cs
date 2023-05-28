@@ -1,4 +1,6 @@
-﻿namespace YoutubeStats
+﻿using YoutubeStats.Models;
+
+namespace YoutubeStats.Utilities
 {
     internal class Csv
     {

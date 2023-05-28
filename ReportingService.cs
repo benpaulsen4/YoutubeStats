@@ -1,10 +1,11 @@
 ﻿using Spectre.Console;
-using System.Runtime.InteropServices;
+using YoutubeStats.Models;
+using YoutubeStats.Utilities;
 
 namespace YoutubeStats
 {
     public class ReportingService
-    {   
+    {
         private readonly ChannelSummary[] data;
         private readonly Dictionary<string, string[]> groupStructure;
         private readonly StatusContext statusContext;
@@ -97,7 +98,7 @@ namespace YoutubeStats
                                 }
                             }
 
-                            foreach(var initialChannel in firstRow!.Values) //if previous row exists so does first row
+                            foreach (var initialChannel in firstRow!.Values) //if previous row exists so does first row
                             {
                                 if (channel.Key == initialChannel.Key)
                                 {
@@ -109,7 +110,7 @@ namespace YoutubeStats
                                 }
                             }
 
-                            foreach(var recentChannel in threeMonthsAgo?.Values ?? new Dictionary<string, int>())
+                            foreach (var recentChannel in threeMonthsAgo?.Values ?? new Dictionary<string, int>())
                             {
                                 if (channel.Key == recentChannel.Key)
                                 {
@@ -133,7 +134,7 @@ namespace YoutubeStats
 
                     try
                     {
-                        ChartingService.GenerateSubGroupGraph(previousResults, subGroup);
+                        ChartGenerators.GenerateSubGroupGraph(previousResults, subGroup);
                     }
                     catch (Exception e)
                     {
@@ -150,7 +151,7 @@ namespace YoutubeStats
                         }
                         else
                         {
-                            subGroupAverages.Add(row.Date, new Dictionary<string, int>() { { subGroup, (int)row.Values.Where(channel => !averageIgnored.Contains(channel.Key)).Select(channel => channel.Value).Average() } }); ;
+                            subGroupAverages.Add(row.Date, new Dictionary<string, int>() { { subGroup, (int)row.Values.Where(channel => !averageIgnored.Contains(channel.Key)).Select(channel => channel.Value).Average() } });
                         }
 
                     }
@@ -158,7 +159,7 @@ namespace YoutubeStats
 
                 try
                 {
-                    ChartingService.GenerateGroupGraph(subGroupAverages, group.Key);
+                    ChartGenerators.GenerateGroupGraph(subGroupAverages, group.Key);
                 }
                 catch (Exception e)
                 {

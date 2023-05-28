@@ -1,4 +1,4 @@
-﻿namespace YoutubeStats
+﻿namespace YoutubeStats.Models
 {
     public class ChannelSummary : IComparable<ChannelSummary>
     {
