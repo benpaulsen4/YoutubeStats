@@ -1,4 +1,5 @@
 ﻿using Spectre.Console;
+using System.Runtime.InteropServices;
 
 namespace YoutubeStats
 {
@@ -15,13 +16,21 @@ namespace YoutubeStats
             this.statusContext = statusContext;
         }
 
-        public void GenerateConsoleReport(Dictionary<string, (int, double)>? changes = null)
+        public void GenerateConsoleReport(AnalyticsPackage? package = null)
         {
             AnsiConsole.WriteLine();
             AnsiConsole.MarkupLine($"Youtube Stats Report - [blue]{DateTime.Now}[/]");
             AnsiConsole.WriteLine();
 
-            ConsoleWriter.WriteReport(data, groupStructure, changes);
+            ConsoleWriter.WriteReport(data, groupStructure, package);
+            if (package != null)
+            {
+                AnsiConsole.MarkupLine("[b]Notes:[/]");
+                AnsiConsole.WriteLine("  * MAG = Monthly Average Growth");
+                AnsiConsole.WriteLine("  * Recent MAG is based on the last 3 months of data");
+                AnsiConsole.WriteLine("  * The prediction is for 6 months from now");
+                AnsiConsole.WriteLine("  * Check the results folder to find graph PNGs of the results");
+            }
         }
 
         public string GenerateCsvReport(bool skipConsole = false)
@@ -53,7 +62,7 @@ namespace YoutubeStats
         public void GenerateAnalyticsReport()
         {
             var baseDirectory = GenerateCsvReport(true);
-            Dictionary<string, (int, double)> changes = new();
+            var package = new AnalyticsPackage();
 
             statusContext.Status("Processing analytics...");
 
@@ -70,6 +79,8 @@ namespace YoutubeStats
                     var maxIndex = previousResults.Max(row => row.Index);
                     var latestRow = previousResults.Where(row => row.Index == maxIndex).FirstOrDefault();
                     var previousRow = previousResults.Where(row => row.Index == maxIndex - 1).FirstOrDefault();
+                    var firstRow = previousResults.Where(row => row.Index == 0).FirstOrDefault();
+                    var threeMonthsAgo = previousResults.Where(row => DateTime.Now.Subtract(row.Date) > TimeSpan.FromDays(90)).LastOrDefault();
 
                     if (latestRow != null && previousRow != null)
                     {
@@ -81,9 +92,41 @@ namespace YoutubeStats
                                 {
                                     double percentChange = ((channel.Value - prevChannel.Value) / (double)prevChannel.Value) * 100;
                                     int exactChange = channel.Value - prevChannel.Value;
-                                    changes.Add(channel.Key, (exactChange, percentChange));
+                                    package.Change.Add(channel.Key, (exactChange, percentChange));
                                     break;
                                 }
+                            }
+
+                            foreach(var initialChannel in firstRow!.Values) //if previous row exists so does first row
+                            {
+                                if (channel.Key == initialChannel.Key)
+                                {
+                                    double subscriberDelta = channel.Value - initialChannel.Value;
+                                    int dayDelta = latestRow.Date.Subtract(firstRow.Date).Days;
+                                    double lifetimeMAG = subscriberDelta / dayDelta * 30;
+                                    package.LifetimeMonthlyAverageGrowth.Add(channel.Key, (int)lifetimeMAG);
+                                    break;
+                                }
+                            }
+
+                            foreach(var recentChannel in threeMonthsAgo?.Values ?? new Dictionary<string, int>())
+                            {
+                                if (channel.Key == recentChannel.Key)
+                                {
+                                    double subscriberDelta = channel.Value - recentChannel.Value;
+                                    //Note: Not likely to be exactly three months
+                                    int dayDelta = latestRow.Date.Subtract(firstRow.Date).Days;
+                                    double recentMAG = subscriberDelta / dayDelta * 30;
+                                    package.RecentMonthlyAverageGrowth.Add(channel.Key, (int)recentMAG);
+                                    break;
+                                }
+                            }
+
+                            var MAG = package.RecentMonthlyAverageGrowth.GetNullable(channel.Key) ?? package.LifetimeMonthlyAverageGrowth.GetNullable(channel.Key);
+                            if (MAG.HasValue)
+                            {
+                                int prediction = (MAG.Value * 6) + channel.Value;
+                                package.Prediction.Add(channel.Key, prediction);
                             }
                         }
                     }
@@ -123,7 +166,7 @@ namespace YoutubeStats
                 }
             }
 
-            GenerateConsoleReport(changes);
+            GenerateConsoleReport(package);
         }
 
         private void PrepareFileStructure()

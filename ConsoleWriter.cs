@@ -4,7 +4,7 @@ namespace YoutubeStats
 {
     public static class ConsoleWriter
     {
-        public static void WriteReport(ChannelSummary[] data, Dictionary<string, string[]> groupStructure, Dictionary<string, (int, double)>? changes = null)
+        public static void WriteReport(ChannelSummary[] data, Dictionary<string, string[]> groupStructure, AnalyticsPackage? package = null)
         {
             foreach (var group in groupStructure)
             {
@@ -19,7 +19,7 @@ namespace YoutubeStats
 
                 foreach (var subGroup in group.Value)
                 {
-                    table.AddRow(GenerateSubGroupTable(subGroup, data.Where(channel => channel.SubGroup == subGroup).ToArray(), changes));
+                    table.AddRow(GenerateSubGroupTable(subGroup, data.Where(channel => channel.SubGroup == subGroup).ToArray(), package));
                     table.AddEmptyRow();
                 }
 
@@ -28,7 +28,7 @@ namespace YoutubeStats
             }
         }
 
-        private static Table GenerateSubGroupTable(string name, ChannelSummary[] members, Dictionary<string, (int, double)>? changes)
+        private static Table GenerateSubGroupTable(string name, ChannelSummary[] members, AnalyticsPackage? package)
         {
             var subGroupAverage = members.Where(channel => channel.IgnoreInAverage != true).Select(channel => channel.SubscriberCount).Average();
 
@@ -45,20 +45,23 @@ namespace YoutubeStats
             sortedMembers.Sort();
             sortedMembers.Reverse();
 
-            if (changes != null)
+            if (package != null)
             {
-                table.AddColumn("Change");
-                table.AddColumn("% Change");
+                table.AddColumns("Change","% Change","Lifetime MAG","Recent MAG", "Prediction");
 
                 foreach (var member in sortedMembers)
                 {
-                    if (changes?.TryGetValue(member.Name, out var change) == true)
+                    if (package.Change.TryGetValue(member.Name, out var change))
                     {
-                        table.AddRow(member.Name, member.SubscriberCount!.Value.ToString("n0") ?? "", $"{(change.Item1 > 0 ? "[green]▲[/]" : change.Item1 == 0 ? "[blue]=[/]" : "[red]▼[/]")} {change.Item1:n0}", $"{change.Item2:n3}%");
+                        var lifetimeMAG = package.LifetimeMonthlyAverageGrowth.GetNullable(member.Name);
+                        var recentMAG = package.RecentMonthlyAverageGrowth.GetNullable(member.Name);
+                        var prediction = package.Prediction.GetNullable(member.Name);
+
+                        table.AddRow(member.Name, member.SubscriberCount!.Value.ToString("n0") ?? "", $"{(change.actual > 0 ? "[green]▲[/]" : change.actual == 0 ? "[blue]=[/]" : "[red]▼[/]")} {change.actual:n0}", $"{change.percentage:n3}%", $"{lifetimeMAG:n0}", $"{recentMAG:n0}", $"{prediction:n0}");
                     }
                     else
                     {
-                        table.AddRow(member.Name, member.SubscriberCount!.Value.ToString("n0") ?? "", "Unknown", "");
+                        table.AddRow(member.Name, member.SubscriberCount!.Value.ToString("n0") ?? "", "Unknown", "", "", "", "");
                     }
                 }
             }
