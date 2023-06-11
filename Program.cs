@@ -9,13 +9,20 @@ using YoutubeStats.Utilities;
 
 AnsiConsole.MarkupLine("Youtube Stats Collector [green]v2[/] by [bold]Ben Paulsen[/]");
 
-await AnsiConsole.Status().Spinner(Spinner.Known.Dots).SpinnerStyle(Style.Parse("blue bold")).StartAsync("Parsing Config...", async context =>
-{
-    JObject config = JObject.Parse(File.ReadAllText(@"config.json"));
+var globalSpinner = AnsiConsole.Status().Spinner(Spinner.Known.Dots).SpinnerStyle(Style.Parse("blue bold"));
 
-    var groups = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, ChannelSummary[]>>>(config["groups"]?.ToString() ?? throw new ArgumentNullException("Groups", "Config missing groups or incorrectly configured"));
-    var channels = new List<ChannelSummary>();
-    var subGroups = new Dictionary<string, string[]>();
+const string configLocation = @"config.json";
+
+JObject config = JObject.Parse(File.ReadAllText(configLocation));
+Dictionary<string, Dictionary<string, ChannelSummary[]>>? groups = null;
+
+var channels = new List<ChannelSummary>();
+var subGroups = new Dictionary<string, string[]>();
+var channelsWithHandles = new List<ChannelSummary>();
+
+globalSpinner.Start("Parsing Config...", context =>
+{
+    groups = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, ChannelSummary[]>>>(config["groups"]?.ToString() ?? throw new ArgumentNullException("Groups", "Config missing groups or incorrectly configured"));
 
     if (args.Contains("--undo"))
     {
@@ -34,7 +41,7 @@ await AnsiConsole.Status().Spinner(Spinner.Known.Dots).SpinnerStyle(Style.Parse(
         }
 
         AnsiConsole.MarkupLine("[red]Erased latest entries[/]");
-        return;
+        Environment.Exit(0);
     }
 
     foreach (var group in groups!)
@@ -46,21 +53,45 @@ await AnsiConsole.Status().Spinner(Spinner.Known.Dots).SpinnerStyle(Style.Parse(
             {
                 channel.SubGroup = subGroup.Key;
                 channels.Add(channel);
+
+                if (channel.Id[0] == '@') channelsWithHandles.Add(channel);
             }
         }
     }
+});
 
-    var service = new YouTubeService(new BaseClientService.Initializer
+if (channelsWithHandles.Any())
+{
+    AnsiConsole.MarkupLine("[yellow]:warning: [b]Warning:[/] Channel handles (usernames with @ at the beginning) detected in config file. We will now attempt to convert them to Youtube IDs." + 
+        " [u]Please note[/] that this uses an external service not affiliated with Youtube, use at your own risk! \n\nThis will also update your config file to replace the handles with IDs," + 
+        " it is recommended that you backup your config file in case of a failure. [/]");
+    AnsiConsole.WriteLine();
+
+    if (!AnsiConsole.Confirm("Would you like to continue?")) Environment.Exit(1);
+
+    await globalSpinner.StartAsync("Resolving Youtube handles...", async context =>
     {
-        ApplicationName = "Youtube Stats",
-        ApiKey = config["general"]?["apiKey"]?.ToString() ?? throw new ArgumentNullException("API key", "Config missing API key or incorrectly configured")
+        await HandleResolver.ResolveHandles(channelsWithHandles);
+
+        context.Status("Updating config...");
+
+        var configUpdater = new ConfigUpdater(configLocation, config);
+
+        configUpdater.UpdateGroups(groups);
     });
+}
 
-    var parts = new List<string> { "statistics" };
-    var channelIds = channels.Select(channel => channel.Id);
+var service = new YouTubeService(new BaseClientService.Initializer
+{
+    ApplicationName = "Youtube Stats",
+    ApiKey = config["general"]?["apiKey"]?.ToString() ?? throw new ArgumentNullException("API key", "Config missing API key or incorrectly configured")
+});
 
-    context.Status("Querying Youtube API...");
+var parts = new List<string> { "statistics" };
+var channelIds = channels.Select(channel => channel.Id);
 
+await globalSpinner.StartAsync("Querying Youtube API...", async context =>
+{
     var request = service.Channels.List(new Google.Apis.Util.Repeatable<string>(parts));
     request.Id = new Google.Apis.Util.Repeatable<string>(channelIds);
 
@@ -106,7 +137,6 @@ await AnsiConsole.Status().Spinner(Spinner.Known.Dots).SpinnerStyle(Style.Parse(
         default:
             throw new InvalidOperationException("Unknown report type");
     };
-
 });
 
 AnsiConsole.WriteLine();

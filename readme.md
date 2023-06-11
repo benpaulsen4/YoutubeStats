@@ -7,7 +7,8 @@ with comments explaining the format as well as demonstrate how the groups can be
 
 > Note: You will require your own YouTube API v3 key, which can be obtained from Google directly.
 
-As part of assembling a config file, you will need to obtain the channel ID of the creators you wish to collect stats for. Now that YouTube is transitioning to the new handle-based URLS (ie. youtube.com/@creator) it is a bit more difficult to get these IDs.
+As part of assembling a config file, ~~you will need to obtain the channel ID of the creators you wish to collect stats for~~. [Update] We now have *experimental* support for automatically translating handles to IDs, you can try this in the latest build by putting a 
+handle (including the @) in the 'id' field like this: `"id": "@channelHandle"` Now that YouTube is transitioning to the new handle-based URLS (ie. youtube.com/@creator) it is a bit more difficult to get these IDs.
 There are two main ways you can do it today:
 1. Search the creator on Socialblade and copy the ID from there.
 2. Go to a related channel page which links the creator you want the ID of in their "Channels" tab. For now, clicking on a channel linked in another creators page will use the old URLs which contain the ID in them directly. You can then copy the ID from that URL.
@@ -50,8 +51,10 @@ The following improvements will be implemented in a future version:
 - [x] Add new analytics metrics
   - New metrics are lifetime/recent Monthly Average Growth which can help indicate a channels performance relative to its past performance and its peers
   - From the new metrics, a prediction system has been introduced to predict how many subscribers the channel will have in 6 months
-- [ ] Translate channel handles to channel IDs automatically
+- [x] Translate channel handles to channel IDs automatically
   - As Youtube transitions away from publicly displaying IDs, it becomes harder to get them, this would greatly simplify things
+- [ ] Add 'Awards' feature
+  - This will introduce podium style awards for the best performance across all groups for specific metrics
 - [ ] Allow writing analytics reports to text files
   - This will make storing historical copies of analytics simpler
   - (?) A GUI could invalidate the need for this by generating analytics on the fly for any point in time selected

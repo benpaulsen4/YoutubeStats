@@ -1,19 +1,14 @@
-﻿namespace YoutubeStats.Models
+﻿using Newtonsoft.Json;
+
+namespace YoutubeStats.Models
 {
     public class ChannelSummary : IComparable<ChannelSummary>
     {
         public string Id { get; set; } = null!;
         public string Name { get; set; } = null!;
-        public int? SubscriberCount { get; set; }
         public bool? IgnoreInAverage { get; set; }
-        public string? SubGroup { get; set; }
-
-        public ChannelSummary(string id, string name, int? subscriberCount)
-        {
-            Id = id;
-            Name = name;
-            SubscriberCount = subscriberCount;
-        }
+        [JsonIgnore] public int? SubscriberCount { get; set; }
+        [JsonIgnore] public string? SubGroup { get; set; }
 
         public int CompareTo(ChannelSummary? other)
         {
