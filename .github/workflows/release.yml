@@ -22,7 +22,7 @@ jobs:
           dotnet build -c Release
       - name: Zip build
         run: |
-          zip -z application.zip ./bin/Release/net7.0
+          zip -z application.zip .
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
