@@ -14,7 +14,29 @@ var globalSpinner = AnsiConsole.Status().Spinner(Spinner.Known.Dots).SpinnerStyl
 const string configLocation = @"config.json";
 
 JObject config = JObject.Parse(File.ReadAllText(configLocation));
-Dictionary<string, Dictionary<string, ChannelSummary[]>>? groups = null;
+var groups = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, ChannelSummary[]>>>(config["groups"]?.ToString() ?? throw new ArgumentNullException("Groups", "Config missing groups or incorrectly configured"));
+var noWait = false;
+
+if (args.Contains("--undo"))
+{
+    if (groups == null) throw new ArgumentException("Config missing groups or incorrectly configured");
+
+    var baseDirectory = Directory.GetCurrentDirectory();
+    foreach (var group in groups)
+    {
+        Directory.SetCurrentDirectory($"{baseDirectory}/Results/{group.Key}");
+
+        foreach (var subGroup in group.Value)
+        {
+            Csv.EraseLatestLine(subGroup.Key);
+        }
+    }
+
+    AnsiConsole.MarkupLine("[red]Erased latest entries[/]");
+    Environment.Exit(0);
+}
+
+if (args.Contains("--no-wait")) noWait = true;
 
 var channels = new List<ChannelSummary>();
 var subGroups = new Dictionary<string, string[]>();
@@ -22,28 +44,6 @@ var channelsWithHandles = new List<ChannelSummary>();
 
 globalSpinner.Start("Parsing Config...", context =>
 {
-    groups = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, ChannelSummary[]>>>(config["groups"]?.ToString() ?? throw new ArgumentNullException("Groups", "Config missing groups or incorrectly configured"));
-
-    if (args.Contains("--undo"))
-    {
-        context.Status("Erasing...");
-        if (groups == null) throw new ArgumentException("Config missing groups or incorrectly configured");
-
-        var baseDirectory = Directory.GetCurrentDirectory();
-        foreach (var group in groups)
-        {
-            Directory.SetCurrentDirectory($"{baseDirectory}/Results/{group.Key}");
-
-            foreach (var subGroup in group.Value)
-            {
-                Csv.EraseLatestLine(subGroup.Key);
-            }
-        }
-
-        AnsiConsole.MarkupLine("[red]Erased latest entries[/]");
-        Environment.Exit(0);
-    }
-
     foreach (var group in groups!)
     {
         subGroups.Add(group.Key, group.Value.Select(subGroups => subGroups.Key).ToArray());
@@ -141,5 +141,10 @@ await globalSpinner.StartAsync("Querying Youtube API...", async context =>
 });
 
 AnsiConsole.WriteLine();
-AnsiConsole.WriteLine("Press any key to exit...");
-Console.ReadKey();
+
+if (!noWait)
+{
+    AnsiConsole.WriteLine("Press any key to exit...");
+    Console.ReadKey();
+}
+    
