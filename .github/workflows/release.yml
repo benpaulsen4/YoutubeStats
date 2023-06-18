@@ -20,12 +20,9 @@ jobs:
       - name: Build project
         run: |
           dotnet build -c Release
-      - name: Change directory
-        run: |
-          cd ./bin/Release/net7.0
       - name: Zip build
         run: |
-          zip -r application.zip .
+          cd ./bin/Release/net7.0; zip -r application.zip .
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
