@@ -127,13 +127,16 @@ await globalSpinner.StartAsync("Querying Youtube API...", async context =>
         case "analytics":
             try
             {
-                reporting.GenerateAnalyticsReport();
+                reporting.GenerateAnalyticsReport(false);
             }
             catch (Exception)
             {
                 AnsiConsole.MarkupLine("[red]Error[/] generating analytics report, falling back to console! (CSV may or may not have been written)");
                 reporting.GenerateConsoleReport();
             }
+            break;
+        case "analytics-saved":
+            reporting.GenerateAnalyticsReport(true);
             break;
         default:
             throw new InvalidOperationException("Unknown report type");

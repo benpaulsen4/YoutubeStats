@@ -1,4 +1,5 @@
-﻿using Spectre.Console;
+﻿using Newtonsoft.Json;
+using Spectre.Console;
 using YoutubeStats.Models;
 using YoutubeStats.Utilities;
 
@@ -60,7 +61,7 @@ namespace YoutubeStats
             return baseDirectory;
         }
 
-        public void GenerateAnalyticsReport()
+        public void GenerateAnalyticsReport(bool saveReport)
         {
             var baseDirectory = GenerateCsvReport(true);
             var package = new AnalyticsPackage();
@@ -166,8 +167,51 @@ namespace YoutubeStats
                     AnsiConsole.MarkupLine($"[red]Error[/] generating {group.Key} group graph: {e.Message}");
                 }
             }
+            if (saveReport)
+            {
+                SaveAnalyticsReport(package, baseDirectory);
+            }
+            else
+            {
+                GenerateConsoleReport(package);
+            }
+        }
 
-            GenerateConsoleReport(package);
+        private void SaveAnalyticsReport(AnalyticsPackage analytics, string baseDirectory)
+        {
+            var channelsWithAnalytics = new List<ChannelWithAnalytics>();
+            foreach (var channel in data)
+            {
+                channelsWithAnalytics.Add(new ChannelWithAnalytics
+                {
+                    Name = channel.Name,
+                    SubGroup = channel.SubGroup,
+                    SubscriberCount = channel.SubscriberCount,
+                    Change = analytics.Change.GetNullable(channel.Name)?.actual,
+                    LifetimeMAG = analytics.LifetimeMonthlyAverageGrowth.GetNullable(channel.Name),
+                    RecentMAG = analytics.RecentMonthlyAverageGrowth.GetNullable(channel.Name),
+                    SixMonthPrediction = analytics.Prediction.GetNullable(channel.Name),
+                }) ;
+            }
+
+            var report = new Dictionary<string, Dictionary<string, ChannelWithAnalytics[]>>();
+            foreach (var group in groupStructure)
+            {
+                var subGroups = new Dictionary<string, ChannelWithAnalytics[]>();
+                foreach (var subGroup in group.Value)
+                {
+                    subGroups.Add(subGroup, channelsWithAnalytics.Where(channel => channel.SubGroup == subGroup).ToArray());
+                }
+
+                report.Add(group.Key, subGroups);
+            }
+
+            var json = JsonConvert.SerializeObject(report, Formatting.Indented);
+
+            Directory.CreateDirectory($"{baseDirectory}/Results/Analytics");
+            Directory.SetCurrentDirectory($"{baseDirectory}/Results/Analytics");
+
+            File.WriteAllText($"{DateTime.Now.ToShortDateString().Replace("/","").Replace("-", "")}.json", json);
         }
 
         private void PrepareFileStructure()

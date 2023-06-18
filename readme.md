@@ -55,8 +55,7 @@ The following improvements will be implemented in a future version:
   - As Youtube transitions away from publicly displaying IDs, it becomes harder to get them, this would greatly simplify things
 - [ ] Add 'Awards' feature
   - This will introduce podium style awards for the best performance across all groups for specific metrics
-- [ ] Allow writing analytics reports to text files
+- [x] Allow writing analytics reports to text files
   - This will make storing historical copies of analytics simpler
-  - (?) A GUI could invalidate the need for this by generating analytics on the fly for any point in time selected
 - [ ] Implement a GUI 
   - This is just a concept at this point, but as the graphing library supports WPF, a GUI could be created to make viewing analytics data far simpler
