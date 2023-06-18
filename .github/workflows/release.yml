@@ -20,9 +20,12 @@ jobs:
       - name: Build project
         run: |
           dotnet build -c Release
+      - name: Show directory
+        run: |
+          ls
       - name: Zip build
         run: |
-          zip -z application.zip .
+          zip .
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
