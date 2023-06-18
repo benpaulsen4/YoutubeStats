@@ -30,8 +30,16 @@ namespace YoutubeStats.Utilities
 
         private static async Task<string> GetIdFromHandle(string handle)
         {
-            var response = await HttpClient.GetAsync(BaseUrl + handle);
-            
+            HttpResponseMessage response;
+            try
+            {
+                response = await HttpClient.GetAsync(BaseUrl + handle); //TODO this does not handle non-responses
+            }
+            catch (HttpRequestException)
+            {
+                throw new HandleResolutionException(ResolutionErrorType.ExternalServiceUnavailable);
+            }
+
             if (response.IsSuccessStatusCode)
             {
                 var json = JObject.Parse(await response.Content.ReadAsStringAsync());
@@ -52,6 +60,9 @@ namespace YoutubeStats.Utilities
 
                 return id;
             }
+
+            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                throw new HandleResolutionException(ResolutionErrorType.ChannelNotFound);
 
             throw new HandleResolutionException(ResolutionErrorType.ExternalServiceUnavailable);
         }

@@ -92,21 +92,22 @@ var channelIds = channels.Select(channel => channel.Id);
 
 await globalSpinner.StartAsync("Querying Youtube API...", async context =>
 {
-    var request = service.Channels.List(new Google.Apis.Util.Repeatable<string>(parts));
-    request.Id = new Google.Apis.Util.Repeatable<string>(channelIds);
-
-    var result = await request.ExecuteAsync();
-
-    context.Status("Parsing response...");
-
-    foreach (var channel in channels)
+    foreach (var chunk in channelIds.Chunk(50))
     {
-        foreach (var channelSubs in result.Items)
+        var request = service.Channels.List(new Google.Apis.Util.Repeatable<string>(parts));
+        request.Id = new Google.Apis.Util.Repeatable<string>(chunk);
+
+        var result = await request.ExecuteAsync();
+
+        foreach (var channel in channels)
         {
-            if (channelSubs.Id == channel.Id)
+            foreach (var channelSubs in result.Items)
             {
-                channel.SubscriberCount = (int)channelSubs.Statistics.SubscriberCount!;
-                break;
+                if (channelSubs.Id == channel.Id)
+                {
+                    channel.SubscriberCount = (int)channelSubs.Statistics.SubscriberCount!;
+                    break;
+                }
             }
         }
     }
