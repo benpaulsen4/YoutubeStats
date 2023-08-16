@@ -50,7 +50,7 @@ namespace YoutubeStats.Utilities
                 {
                     id = json["items"]![0]!["id"]!.ToString();
                 }
-                catch (NullReferenceException) 
+                catch (NullReferenceException)
                 {
                     //Note: The external API exhibits interesting behavior. Rather than always return 404 if a channel
                     // with that handle can't be found, it will try to find a channel with a *close enough* handle

@@ -1,5 +1,8 @@
 ﻿// Ignore Spelling: Nullable
 
+using System.Text;
+using YoutubeStats.Models;
+
 namespace YoutubeStats.Utilities
 {
     public static class Extensions
@@ -16,7 +19,33 @@ namespace YoutubeStats.Utilities
             {
                 return null;
             }
+        }
 
+        public static (int first, int second, int third) GetAwardCount(this IEnumerable<Award> awards, string name)
+        {
+            var first = awards.Where(award => award.FirstPlace.Name == name).Count();
+            var second = awards.Where(award => award.SecondPlace?.Name == name).Count();
+            var third = awards.Where(award => award.ThirdPlace?.Name == name).Count();
+
+            return (first, second, third);
+        }
+
+        public static string GetSpacedEnum(this Enum enumerator)
+        {
+            var text = enumerator.ToString();
+
+            if (string.IsNullOrWhiteSpace(text))
+                return string.Empty;
+            StringBuilder newText = new(text.Length * 2);
+            newText.Append(text[0]);
+            for (int i = 1; i < text.Length; i++)
+            {
+                if (char.IsUpper(text[i]))
+                    if ((text[i - 1] != ' ' && !char.IsUpper(text[i - 1])))
+                        newText.Append(' ');
+                newText.Append(text[i]);
+            }
+            return newText.ToString();
         }
     }
 }

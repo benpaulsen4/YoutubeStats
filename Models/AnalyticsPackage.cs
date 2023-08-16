@@ -2,10 +2,12 @@
 {
     public class AnalyticsPackage
     {
-        public Dictionary<string, (int actual, double percentage)> Change { get; set; }
-        public Dictionary<string, int> LifetimeMonthlyAverageGrowth { get; set; }
-        public Dictionary<string, int> RecentMonthlyAverageGrowth { get; set; }
-        public Dictionary<string, int> Prediction { get; set; }
+        public Dictionary<string, (int actual, double percentage)> Change { get; init; }
+        public Dictionary<string, int> LifetimeMonthlyAverageGrowth { get; init; }
+        public Dictionary<string, int> RecentMonthlyAverageGrowth { get; init; }
+        public Dictionary<string, int> Prediction { get; init; }
+
+        public List<Award> Awards { get; init; }
 
         public AnalyticsPackage()
         {
@@ -13,6 +15,7 @@
             LifetimeMonthlyAverageGrowth = new();
             RecentMonthlyAverageGrowth = new();
             Prediction = new();
+            Awards = new();
         }
     }
 }

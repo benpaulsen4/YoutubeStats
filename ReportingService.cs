@@ -117,7 +117,7 @@ namespace YoutubeStats
                                 {
                                     double subscriberDelta = channel.Value - recentChannel.Value;
                                     //Note: Not likely to be exactly three months
-                                    int dayDelta = latestRow.Date.Subtract(firstRow.Date).Days;
+                                    int dayDelta = latestRow.Date.Subtract(threeMonthsAgo!.Date).Days;
                                     double recentMAG = subscriberDelta / dayDelta * 30;
                                     package.RecentMonthlyAverageGrowth.Add(channel.Key, (int)recentMAG);
                                     break;
@@ -167,6 +167,106 @@ namespace YoutubeStats
                     AnsiConsole.MarkupLine($"[red]Error[/] generating {group.Key} group graph: {e.Message}");
                 }
             }
+
+            var realGrowthWinners = package.Change.OrderByDescending(record => record.Value.actual).Take(5).Select(record => (record.Key, record.Value.actual));
+            var realGrowthAward = new Award
+            {
+                Name = AwardType.HighestRealGrowth,
+                Unit = AwardUnit.Subscribers,
+                FirstPlace = new Recipient
+                {
+                    Name = realGrowthWinners.First().Key,
+                    IntegerValue = realGrowthWinners.First().actual
+                },
+                SecondPlace = realGrowthWinners.Count() > 1 ? new Recipient
+                {
+                    Name = realGrowthWinners.ElementAt(1).Key,
+                    IntegerValue = realGrowthWinners.ElementAt(1).actual
+                } : null,
+                ThirdPlace = realGrowthWinners.Count() > 2 ? new Recipient
+                {
+                    Name = realGrowthWinners.ElementAt(2).Key,
+                    IntegerValue = realGrowthWinners.ElementAt(2).actual
+                } : null,
+                FourthPlace = realGrowthWinners.Count() > 3 ? new Recipient
+                {
+                    Name = realGrowthWinners.ElementAt(3).Key,
+                    IntegerValue = realGrowthWinners.ElementAt(3).actual
+                } : null,
+                FifthPlace = realGrowthWinners.Count() > 4 ? new Recipient
+                {
+                    Name = realGrowthWinners.ElementAt(4).Key,
+                    IntegerValue = realGrowthWinners.ElementAt(4).actual
+                } : null
+            };
+            package.Awards.Add(realGrowthAward);
+
+            var relativeGrowthWinners = package.Change.OrderByDescending(record => record.Value.percentage).Take(5).Select(record => (record.Key, record.Value.percentage));
+            var relativeGrowthAward = new Award
+            {
+                Name = AwardType.HighestRelativeGrowth,
+                Unit = AwardUnit.Percentage,
+                FirstPlace = new Recipient
+                {
+                    Name = relativeGrowthWinners.First().Key,
+                    DoubleValue = relativeGrowthWinners.First().percentage
+                },
+                SecondPlace = relativeGrowthWinners.Count() > 1 ? new Recipient
+                {
+                    Name = relativeGrowthWinners.ElementAt(1).Key,
+                    DoubleValue = relativeGrowthWinners.ElementAt(1).percentage
+                } : null,
+                ThirdPlace = relativeGrowthWinners.Count() > 2 ? new Recipient
+                {
+                    Name = relativeGrowthWinners.ElementAt(2).Key,
+                    DoubleValue = relativeGrowthWinners.ElementAt(2).percentage
+                } : null,
+                FourthPlace = relativeGrowthWinners.Count() > 3 ? new Recipient
+                {
+                    Name = relativeGrowthWinners.ElementAt(3).Key,
+                    DoubleValue = relativeGrowthWinners.ElementAt(3).percentage
+                } : null,
+                FifthPlace = relativeGrowthWinners.Count() > 4 ? new Recipient
+                {
+                    Name = relativeGrowthWinners.ElementAt(4).Key,
+                    DoubleValue = relativeGrowthWinners.ElementAt(4).percentage
+                } : null
+            };
+            package.Awards.Add(relativeGrowthAward);
+
+            var recentPerformanceWinners = package.RecentMonthlyAverageGrowth.OrderByDescending(record => record.Value).Take(5);
+            var recentPerformanceAward = new Award
+            {
+                Name = AwardType.BestRecentPerformance,
+                Unit = AwardUnit.Subscribers,
+                FirstPlace = new Recipient
+                {
+                    Name = recentPerformanceWinners.First().Key,
+                    IntegerValue = recentPerformanceWinners.First().Value
+                },
+                SecondPlace = recentPerformanceWinners.Count() > 1 ? new Recipient
+                {
+                    Name = recentPerformanceWinners.ElementAt(1).Key,
+                    IntegerValue = recentPerformanceWinners.ElementAt(1).Value
+                } : null,
+                ThirdPlace = recentPerformanceWinners.Count() > 2 ? new Recipient
+                {
+                    Name = recentPerformanceWinners.ElementAt(2).Key,
+                    IntegerValue = recentPerformanceWinners.ElementAt(2).Value
+                } : null,
+                FourthPlace = recentPerformanceWinners.Count() > 3 ? new Recipient
+                {
+                    Name = recentPerformanceWinners.ElementAt(3).Key,
+                    IntegerValue = recentPerformanceWinners.ElementAt(3).Value
+                } : null,
+                FifthPlace = recentPerformanceWinners.Count() > 4 ? new Recipient
+                {
+                    Name = recentPerformanceWinners.ElementAt(4).Key,
+                    IntegerValue = recentPerformanceWinners.ElementAt(4).Value
+                } : null
+            };
+            package.Awards.Add(recentPerformanceAward);
+
             if (saveReport)
             {
                 SaveAnalyticsReport(package, baseDirectory);
@@ -191,7 +291,7 @@ namespace YoutubeStats
                     LifetimeMAG = analytics.LifetimeMonthlyAverageGrowth.GetNullable(channel.Name),
                     RecentMAG = analytics.RecentMonthlyAverageGrowth.GetNullable(channel.Name),
                     SixMonthPrediction = analytics.Prediction.GetNullable(channel.Name),
-                }) ;
+                });
             }
 
             var report = new Dictionary<string, Dictionary<string, ChannelWithAnalytics[]>>();
@@ -211,7 +311,7 @@ namespace YoutubeStats
             Directory.CreateDirectory($"{baseDirectory}/Results/Analytics");
             Directory.SetCurrentDirectory($"{baseDirectory}/Results/Analytics");
 
-            File.WriteAllText($"{DateTime.Now.ToShortDateString().Replace("/","").Replace("-", "")}.json", json);
+            File.WriteAllText($"{DateTime.Now.ToShortDateString().Replace("/", "").Replace("-", "")}.json", json);
         }
 
         private void PrepareFileStructure()

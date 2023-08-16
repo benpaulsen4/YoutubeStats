@@ -62,8 +62,8 @@ globalSpinner.Start("Parsing Config...", context =>
 
 if (channelsWithHandles.Any())
 {
-    AnsiConsole.MarkupLine("[yellow]:warning: [b]Warning:[/] Channel handles (usernames with @ at the beginning) detected in config file. We will now attempt to convert them to Youtube IDs." + 
-        " [u]Please note[/] that this uses an external service not affiliated with Youtube, use at your own risk! \n\nThis will also update your config file to replace the handles with IDs," + 
+    AnsiConsole.MarkupLine("[yellow]:warning: [b]Warning:[/] Channel handles (usernames with @ at the beginning) detected in config file. We will now attempt to convert them to Youtube IDs." +
+        " [u]Please note[/] that this uses an external service not affiliated with Youtube, use at your own risk! \n\nThis will also update your config file to replace the handles with IDs," +
         " it is recommended that you backup your config file in case of a failure. [/]");
     AnsiConsole.WriteLine();
 
@@ -125,6 +125,7 @@ await globalSpinner.StartAsync("Querying Youtube API...", async context =>
             reporting.GenerateCsvReport();
             break;
         case "analytics":
+#if !DEBUG
             try
             {
                 reporting.GenerateAnalyticsReport(false);
@@ -134,6 +135,10 @@ await globalSpinner.StartAsync("Querying Youtube API...", async context =>
                 AnsiConsole.MarkupLine("[red]Error[/] generating analytics report, falling back to console! (CSV may or may not have been written)");
                 reporting.GenerateConsoleReport();
             }
+#endif
+#if DEBUG
+            reporting.GenerateAnalyticsReport(false);
+#endif
             break;
         case "analytics-saved":
             reporting.GenerateAnalyticsReport(true);
@@ -150,4 +155,3 @@ if (!noWait)
     AnsiConsole.WriteLine("Press any key to exit...");
     Console.ReadKey();
 }
-    

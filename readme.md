@@ -53,8 +53,10 @@ The following improvements will be implemented in a future version:
   - From the new metrics, a prediction system has been introduced to predict how many subscribers the channel will have in 6 months
 - [x] Translate channel handles to channel IDs automatically
   - As Youtube transitions away from publicly displaying IDs, it becomes harder to get them, this would greatly simplify things
-- [ ] Add 'Awards' feature
+- [x] Add 'Awards' feature
   - This will introduce podium style awards for the best performance across all groups for specific metrics
+- [ ] Add 'Milestones' feature
+  - This will highlight once a creator has surpassed a certain subscriber milestone
 - [x] Allow writing analytics reports to text files
   - This will make storing historical copies of analytics simpler
 - [ ] Implement a GUI 

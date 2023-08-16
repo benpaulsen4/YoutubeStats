@@ -27,6 +27,29 @@ namespace YoutubeStats.Utilities
                 AnsiConsole.Write(table);
                 AnsiConsole.WriteLine();
             }
+
+            if (package != null)
+            {
+                AnsiConsole.Write(new Rule("Awards :trophy:") { Style = Style.Parse("yellow") });
+                AnsiConsole.WriteLine();
+
+                var grid = new Grid();
+                grid.AddColumns(3);
+
+                foreach (var chunk in package.Awards.Chunk(3))
+                {
+                    var awardRow = new List<Panel>();
+                    foreach (var award in chunk)
+                    {
+                        awardRow.Add(GenerateAwardPanel(award));
+                    }
+
+                    grid.AddRow(awardRow.ToArray());
+                }
+
+                AnsiConsole.Write(grid);
+                AnsiConsole.WriteLine();
+            }
         }
 
         private static Table GenerateSubGroupTable(string name, ChannelSummary[] members, AnalyticsPackage? package)
@@ -58,7 +81,7 @@ namespace YoutubeStats.Utilities
                         var recentMAG = package.RecentMonthlyAverageGrowth.GetNullable(member.Name);
                         var prediction = package.Prediction.GetNullable(member.Name);
 
-                        table.AddRow(member.Name, member.SubscriberCount!.Value.ToString("n0") ?? "", $"{(change.actual > 0 ? "[green]▲[/]" : change.actual == 0 ? "[blue]=[/]" : "[red]▼[/]")} {change.actual:n0}", 
+                        table.AddRow(GetAwardSummaryString(package, member.Name), member.SubscriberCount!.Value.ToString("n0") ?? "", $"{(change.actual > 0 ? "[green]▲[/]" : change.actual == 0 ? "[blue]=[/]" : "[red]▼[/]")} {change.actual:n0}",
                             $"{change.percentage:n3}%", $"{lifetimeMAG:n0}", $"{recentMAG:n0}", $"{prediction:n0}");
                     }
                     else
@@ -77,6 +100,39 @@ namespace YoutubeStats.Utilities
 
             table.Centered();
             return table;
+        }
+
+        private static Panel GenerateAwardPanel(Award award)
+        {
+            var content = $":1st_place_medal: [b]1 - {award.FirstPlace.Name}[/] ({GetAwardValueString(award.Unit, award.FirstPlace)})\n";
+            if (award.SecondPlace != null) content += $":2nd_place_medal: [b]2 - {award.SecondPlace.Name}[/] ({GetAwardValueString(award.Unit, award.SecondPlace)})\n";
+            if (award.ThirdPlace != null) content += $":3rd_place_medal: [b]3 - {award.ThirdPlace.Name}[/] ({GetAwardValueString(award.Unit, award.ThirdPlace)})\n";
+            if (award.FourthPlace != null) content += $":glowing_star: [b]4 - {award.FourthPlace.Name}[/] ({GetAwardValueString(award.Unit, award.FourthPlace)})\n";
+            if (award.FifthPlace != null) content += $":glowing_star: [b]5 - {award.FifthPlace.Name}[/] ({GetAwardValueString(award.Unit, award.FifthPlace)})";
+
+            var panel = new Panel(content)
+            {
+                Header = new PanelHeader(award.Name.GetSpacedEnum()),
+                Border = BoxBorder.Rounded,
+                Padding = new Padding(1, 1)
+            };
+
+            return panel;
+        }
+
+        private static string GetAwardValueString(AwardUnit unit, Recipient recipient)
+        {
+            if (unit == AwardUnit.Percentage) return $"{recipient.DoubleValue:n2}%";
+
+            return $"{recipient.IntegerValue:n0} subs";
+        }
+
+        private static string GetAwardSummaryString(AnalyticsPackage package, string name)
+        {
+            var (first, second, third) = package.Awards.GetAwardCount(name);
+            if (first + second + third == 0) return name;
+
+            return $"{name} {string.Concat(Enumerable.Repeat(":1st_place_medal:", first)) + string.Concat(Enumerable.Repeat(":2nd_place_medal:", second)) + string.Concat(Enumerable.Repeat(":3rd_place_medal:", third))}";
         }
     }
 }
