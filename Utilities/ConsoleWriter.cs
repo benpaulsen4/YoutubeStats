@@ -7,6 +7,12 @@ namespace YoutubeStats.Utilities
     {
         public static void WriteReport(ChannelSummary[] data, Dictionary<string, string[]> groupStructure, AnalyticsPackage? package = null)
         {
+            if (!AnsiConsole.Profile.Capabilities.Unicode)
+            {
+                AnsiConsole.MarkupLine("[yellow][b]Warning:[/] Your console does not support Unicode output, the report output may not look correct. Read more here: https://github.com/benpaulsen4/YoutubeStats/blob/master/readme.md#console-formatting [/]");
+                AnsiConsole.WriteLine();
+            }
+
             foreach (var group in groupStructure)
             {
                 var table = new Table
