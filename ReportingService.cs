@@ -32,6 +32,7 @@ namespace YoutubeStats
                 AnsiConsole.WriteLine("  * Recent MAG is based on the last 3 months of data");
                 AnsiConsole.WriteLine("  * The prediction is for 6 months from now");
                 AnsiConsole.WriteLine("  * Check the results folder to find graph PNGs of the results");
+                AnsiConsole.WriteLine("  * For more info about awards, see 'AwardsGuide.md'");
             }
         }
 
