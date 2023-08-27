@@ -23,9 +23,9 @@ namespace YoutubeStats.Utilities
 
         public static (int first, int second, int third) GetAwardCount(this IEnumerable<Award> awards, string name)
         {
-            var first = awards.Where(award => award.FirstPlace.Name == name).Count();
-            var second = awards.Where(award => award.SecondPlace?.Name == name).Count();
-            var third = awards.Where(award => award.ThirdPlace?.Name == name).Count();
+            var first = awards.Where(award => award.Recipients.FirstOrDefault()?.Name == name).Count();
+            var second = awards.Where(award => award.Recipients.ElementAtOrDefault(2)?.Name == name).Count();
+            var third = awards.Where(award => award.Recipients.ElementAtOrDefault(3)?.Name == name).Count();
 
             return (first, second, third);
         }

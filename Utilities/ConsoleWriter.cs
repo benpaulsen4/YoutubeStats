@@ -110,11 +110,19 @@ namespace YoutubeStats.Utilities
 
         private static Panel GenerateAwardPanel(Award award)
         {
-            var content = $":1st_place_medal: [b]1 - {award.FirstPlace.Name}[/] ({GetAwardValueString(award.Unit, award.FirstPlace)})\n";
-            if (award.SecondPlace != null) content += $":2nd_place_medal: [b]2 - {award.SecondPlace.Name}[/] ({GetAwardValueString(award.Unit, award.SecondPlace)})\n";
-            if (award.ThirdPlace != null) content += $":3rd_place_medal: [b]3 - {award.ThirdPlace.Name}[/] ({GetAwardValueString(award.Unit, award.ThirdPlace)})\n";
-            if (award.FourthPlace != null) content += $":glowing_star: [b]4 - {award.FourthPlace.Name}[/] ({GetAwardValueString(award.Unit, award.FourthPlace)})\n";
-            if (award.FifthPlace != null) content += $":glowing_star: [b]5 - {award.FifthPlace.Name}[/] ({GetAwardValueString(award.Unit, award.FifthPlace)})";
+            var content = "";
+
+            if (award.Recipients.Count == 0)
+            {
+                content = "Nothing to see here :cloud:";
+            }
+            else
+            {
+                foreach (var (recipient, index) in award.Recipients.Select((recipient, index) => (recipient, index)))
+                {
+                    content += $"{GetAwardEmoji(index + 1)} [b]{index + 1} - {recipient.Name}[/] ({GetAwardValueString(award.Unit, recipient)}){(index == 4 ? "" : "\n")}";
+                }
+            }
 
             var panel = new Panel(content)
             {
@@ -139,6 +147,17 @@ namespace YoutubeStats.Utilities
             if (first + second + third == 0) return name;
 
             return $"{name} {string.Concat(Enumerable.Repeat(":1st_place_medal:", first)) + string.Concat(Enumerable.Repeat(":2nd_place_medal:", second)) + string.Concat(Enumerable.Repeat(":3rd_place_medal:", third))}";
+        }
+
+        private static string GetAwardEmoji(int place)
+        {
+            return place switch
+            {
+                1 => ":1st_place_medal:",
+                2 => ":2nd_place_medal:",
+                3 => ":3rd_place_medal:",
+                _ => ":glowing_star:"
+            };
         }
     }
 }

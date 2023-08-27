@@ -4,11 +4,7 @@
     {
         public AwardType Name { get; init; }
         public AwardUnit Unit { get; init; }
-        public Recipient FirstPlace { get; init; } = null!;
-        public Recipient? SecondPlace { get; init; }
-        public Recipient? ThirdPlace { get; init; }
-        public Recipient? FourthPlace { get; init; }
-        public Recipient? FifthPlace { get; init; }
+        public List<Recipient> Recipients { get; init; } = null!;
     }
 
     public record Recipient
