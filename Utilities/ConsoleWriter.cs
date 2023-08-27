@@ -136,9 +136,13 @@ namespace YoutubeStats.Utilities
 
         private static string GetAwardValueString(AwardUnit unit, Recipient recipient)
         {
-            if (unit == AwardUnit.Percentage) return $"{recipient.DoubleValue:n2}%";
-
-            return $"{recipient.IntegerValue:n0} subs";
+            return unit switch
+            {
+                AwardUnit.Percentage => $"{recipient.DoubleValue:n2}%",
+                AwardUnit.Subscribers => $"{recipient.IntegerValue:n0} subs",
+                AwardUnit.Times => $"{recipient.DoubleValue:n2}x",
+                _ => "Unknown unit"
+            };
         }
 
         private static string GetAwardSummaryString(AnalyticsPackage package, string name)

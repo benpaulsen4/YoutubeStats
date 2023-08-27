@@ -19,11 +19,15 @@
         HighestRealGrowth,
         HighestRelativeGrowth,
         BestRecentPerformance,
+        BreakoutStars,
+        MostSubscribers,
+        MostImproved
     }
 
     public enum AwardUnit
     {
         Subscribers,
         Percentage,
+        Times
     }
 }

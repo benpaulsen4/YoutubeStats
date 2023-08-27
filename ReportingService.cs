@@ -168,6 +168,7 @@ namespace YoutubeStats
                 }
             }
 
+            //Highest Real Growth
             var realGrowthWinners = package.Change.OrderByDescending(record => record.Value.actual).Take(5).Select(record => new Recipient { Name = record.Key, IntegerValue = record.Value.actual }).ToList();
             var realGrowthAward = new Award
             {
@@ -177,6 +178,7 @@ namespace YoutubeStats
             };
             package.Awards.Add(realGrowthAward);
 
+            //Highest Relative Growth
             var relativeGrowthWinners = package.Change.OrderByDescending(record => record.Value.percentage).Take(5).Select(record => new Recipient { Name = record.Key, DoubleValue = record.Value.percentage }).ToList();
             var relativeGrowthAward = new Award
             {
@@ -186,6 +188,7 @@ namespace YoutubeStats
             };
             package.Awards.Add(relativeGrowthAward);
 
+            //Best Recent Performance - based on recent MAG
             var recentPerformanceWinners = package.RecentMonthlyAverageGrowth.OrderByDescending(record => record.Value).Take(5).Select(record => new Recipient { Name = record.Key, IntegerValue = record.Value }).ToList();
             var recentPerformanceAward = new Award
             {
@@ -194,6 +197,43 @@ namespace YoutubeStats
                 Recipients = recentPerformanceWinners ?? new List<Recipient>(),
             };
             package.Awards.Add(recentPerformanceAward);
+
+            //Most Subscribers
+            var mostSubscribersWinners = data.OrderByDescending(channel => channel.SubscriberCount).Take(5).Select(channel => new Recipient { Name = channel.Name, IntegerValue = channel.SubscriberCount }).ToList();
+            var mostSubscribersAward = new Award
+            {
+                Name = AwardType.MostSubscribers,
+                Unit = AwardUnit.Subscribers,
+                Recipients = mostSubscribersWinners ?? new List<Recipient>(),
+            };
+            package.Awards.Add(mostSubscribersAward);
+
+            //Breakout Stars - based on individual creator's difference compared to their sub-group's average
+            var sgAverages = new Dictionary<string, double>();
+            foreach(var subgroup in groupStructure.Values.SelectMany(value => value))
+            {
+                sgAverages.Add(subgroup, data.Where(channel => channel.SubGroup == subgroup && channel.IgnoreInAverage != true).Average(channel => channel.SubscriberCount)!.Value);
+            }
+            var breakoutStarsWinners = data.Select(channel => (channel.Name, channel.SubscriberCount / sgAverages[channel.SubGroup!])).OrderByDescending(record => record.Item2)
+                .Take(5).Select(record => new Recipient { Name = record.Name, DoubleValue = record.Item2 }).ToList();
+            var breakoutStarsAward = new Award
+            {
+                Name = AwardType.BreakoutStars,
+                Unit = AwardUnit.Times,
+                Recipients = breakoutStarsWinners ?? new List<Recipient>(),
+            };
+            package.Awards.Add(breakoutStarsAward);
+
+            //Most Improved - based on difference between recent MAG and lifetime MAG
+            var mostImprovedWinners = package.RecentMonthlyAverageGrowth.Select(record => (record.Key, record.Value / (double)package.LifetimeMonthlyAverageGrowth[record.Key]))
+                .OrderByDescending(record => record.Item2).Take(5).Select(record => new Recipient { Name = record.Key, DoubleValue = record.Item2 }).ToList();
+            var mostImprovedAward = new Award
+            {
+                Name = AwardType.MostImproved,
+                Unit = AwardUnit.Times,
+                Recipients = mostImprovedWinners ?? new List<Recipient>(),
+            };
+            package.Awards.Add(mostImprovedAward);
 
             if (saveReport)
             {
