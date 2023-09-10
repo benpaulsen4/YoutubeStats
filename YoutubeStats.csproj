@@ -8,6 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ConfigEditor\**" />
+    <EmbeddedResource Remove="ConfigEditor\**" />
+    <None Remove="ConfigEditor\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Google.Apis.YouTube.v3" Version="1.61.0.3141" />
     <PackageReference Include="ScottPlot" Version="4.1.67" />
     <PackageReference Include="Spectre.Console" Version="0.47.1-preview.0.11" />
