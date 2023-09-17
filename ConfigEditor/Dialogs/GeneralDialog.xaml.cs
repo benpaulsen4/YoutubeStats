@@ -66,10 +66,5 @@ namespace ConfigEditor
         {
             generalSettings.ReportType = (sender as RadioButton).Content.ToString().ToLower();
         }
-
-        private void KeyChanged(object sender, RoutedEventArgs e)
-        {
-            generalSettings.ApiKey = apiKey.Password;
-        }
     }
 }

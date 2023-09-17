@@ -12,7 +12,7 @@
     <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,0,0,20">
             <PasswordBox Name="apiKey" Header="API Key" Width="250" Margin="0,0,8,0"
-                PasswordRevealMode="Hidden" PasswordChanged="KeyChanged" Password="{x:Bind generalSettings.ApiKey}"/>
+                PasswordRevealMode="Hidden" Password="{x:Bind generalSettings.ApiKey, Mode=TwoWay}"/>
             <CheckBox Name="revealKey" Content="Show Key" IsChecked="False" Margin="0,25,0,0"
                 Checked="ShowKeyChanged" Unchecked="ShowKeyChanged"/>
         </StackPanel>

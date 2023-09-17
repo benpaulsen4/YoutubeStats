@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Window 
-    x:Class="ConfigEditor.MainWindow"
+<Page
+    x:Class="ConfigEditor.Dialogs.NewGroup"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:ConfigEditor"
+    xmlns:local="using:ConfigEditor.Dialogs"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="Config Editor">
+    >
 
-</Window>
+    <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <TextBox Name="groupName" Header="Group Name" Width="250" Text="{x:Bind name.Value, Mode=TwoWay}" />
+    </StackPanel>
+</Page>
