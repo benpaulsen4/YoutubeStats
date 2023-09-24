@@ -23,15 +23,14 @@ namespace ConfigEditor
     public sealed partial class GeneralDialog : Page
     {
         private readonly GeneralSettings generalSettings;
+        private readonly ContentDialog dialogRef;
         private int selectedReportType = -1;
 
-        //todo validate
-
-        public GeneralDialog(GeneralSettings generalSettings)
+        public GeneralDialog(GeneralSettings generalSettings, ContentDialog dialogRef)
         {
             this.InitializeComponent();
             this.generalSettings = generalSettings;
-
+            this.dialogRef = dialogRef;
             if (generalSettings.ReportType != null)
             {
                 switch (generalSettings.ReportType)
@@ -47,6 +46,8 @@ namespace ConfigEditor
                         break;
                 }
             }
+
+            UpdateValidity(null, null);
         }
 
         private void ShowKeyChanged(object sender, RoutedEventArgs e)
@@ -62,9 +63,30 @@ namespace ConfigEditor
 
         }
 
+        private void UpdateValidity(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(apiKey.Password))
+            {
+                validationError.Visibility = Visibility.Visible;
+                dialogRef.IsPrimaryButtonEnabled = false;
+            } 
+            else if (generalSettings.ReportType == null)
+            {
+                validationError.Visibility = Visibility.Collapsed;
+                dialogRef.IsPrimaryButtonEnabled = false;
+            }
+            else
+            {
+                validationError.Visibility = Visibility.Collapsed;
+                dialogRef.IsPrimaryButtonEnabled = true;
+            }
+        }
+
         private void ReportChanged(object sender, RoutedEventArgs e)
         {
             generalSettings.ReportType = (sender as RadioButton).Content.ToString().ToLower();
+
+            UpdateValidity(null, null);
         }
     }
 }

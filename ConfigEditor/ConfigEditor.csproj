@@ -15,7 +15,7 @@
   
   <ItemGroup>
     <None Remove="Dialogs\NewChannel.xaml" />
-    <None Remove="Dialogs\NewGroup.xaml" />
+    <None Remove="Dialogs\SimpleNew.xaml" />
     <None Remove="EditGroupPage.xaml" />
     <None Remove="GroupsPage.xaml"></None>
     <None Remove="GeneralDialog.xaml"></None>
@@ -66,7 +66,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="Dialogs\NewGroup.xaml">
+    <Page Update="Dialogs\SimpleNew.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>

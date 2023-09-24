@@ -10,14 +10,14 @@
 >
 
     <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,0,0,20">
-            <PasswordBox Name="apiKey" Header="API Key" Width="250" Margin="0,0,8,0"
-                PasswordRevealMode="Hidden" Password="{x:Bind generalSettings.ApiKey, Mode=TwoWay}"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+            <PasswordBox Name="apiKey" Header="API Key" Width="250" Margin="0,0,8,0" PasswordRevealMode="Hidden" Password="{x:Bind generalSettings.ApiKey, Mode=TwoWay}" PasswordChanged="UpdateValidity"/>
             <CheckBox Name="revealKey" Content="Show Key" IsChecked="False" Margin="0,25,0,0"
                 Checked="ShowKeyChanged" Unchecked="ShowKeyChanged"/>
         </StackPanel>
-    
-        <RadioButtons Header="Report Type" SelectedIndex="{x:Bind selectedReportType}">
+        <TextBlock Name="validationError" Visibility="Collapsed" Text="API Key cannot be blank" Foreground="IndianRed" Margin="0,5,0,0" />
+
+        <RadioButtons Header="Report Type" SelectedIndex="{x:Bind selectedReportType}" Margin="0,20,0,0">
             <RadioButton Content="Console" Checked="ReportChanged"/>
             <RadioButton Content="CSV" Checked="ReportChanged"/>
             <RadioButton Content="Analytics" Checked="ReportChanged"/>

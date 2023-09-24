@@ -10,8 +10,18 @@
     >
 
     <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Spacing="20">
-        <TextBox Name="name" Header="Channel Name" Text="{x:Bind channel.Name, Mode=TwoWay}"/>
-        <TextBox Name="id" Header="Channel ID" Text="{x:Bind channel.Id, Mode=TwoWay}"/>
-        <ComboBox Name="subGroup" Header="Sub Group" Width="200" ItemsSource="{x:Bind subGroups}" SelectedValue="{x:Bind selectedSubGroup.Value, Mode=TwoWay}"/>
+        <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <TextBox Name="name" Header="Channel Name" Text="{x:Bind channel.Name, Mode=TwoWay}" TextChanged="UpdateValidity"/>
+            <TextBlock Name="nameError" Visibility="Collapsed" Foreground="IndianRed" Margin="0,5,0,0" />
+        </StackPanel>
+        <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <TextBox Name="id" Header="Channel ID" Text="{x:Bind channel.Id, Mode=TwoWay}" TextChanged="UpdateValidity"/>
+            <TextBlock Name="idError" Visibility="Collapsed" Foreground="IndianRed" Margin="0,5,0,0" TextWrapping="Wrap" />
+        </StackPanel>
+        <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <ComboBox Name="subGroup" Header="Sub Group" Width="200" ItemsSource="{x:Bind subGroups}" SelectedValue="{x:Bind selectedSubGroup.Value, Mode=TwoWay}" SelectionChanged="UpdateValidity" IsEnabled="{x:Bind canChangeSubGroup}" />
+            <TextBlock Name="subError" Visibility="Collapsed" Text="A sub group must be selected" Foreground="IndianRed" Margin="0,5,0,0" />
+        </StackPanel>
+        <CheckBox Name="ignoreAverage" Content="Ignore in sub-group average" IsChecked="{x:Bind channel.IgnoreInAverage, Mode=TwoWay}" />
     </StackPanel>
 </Page>

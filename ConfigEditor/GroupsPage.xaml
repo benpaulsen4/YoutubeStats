@@ -17,7 +17,7 @@
         <ListView ItemsSource="{x:Bind Groups}" Margin="10,5,10,5" Height="326" Width="329">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="models:Group">
-                    <Grid>
+                    <Grid DataContext="{x:Bind Name}" DoubleTapped="OnEditGroup">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>

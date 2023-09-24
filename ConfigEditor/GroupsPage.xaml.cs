@@ -15,6 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 
@@ -25,45 +26,47 @@ namespace ConfigEditor
 {
     public sealed partial class GroupsPage : Page
     {
-        public ObservableCollection<Group> Groups = new ObservableCollection<Group>()
-        {
-            new Group()
-            {
-                Name = "Example A",
-                SubGroups = new ObservableCollection<SubGroup>()
-                {
-                    new SubGroup
-                    {
-                        Name = "SubA",
-                        Channels = new ObservableCollection<Channel>()
-                        {
-                            new Channel()
-                            {
-                                Name="Test",
-                                Id="int"
-                            }
-                        }
-                    }
-                }
-            },
-            new Group()
-            {
-                Name = "Example B",
-                SubGroups = new ObservableCollection<SubGroup>()
-                {
-                    new SubGroup
-                    {
-                        Name = "SubB",
-                        Channels = new ObservableCollection<Channel>()
-                    }
-                }
-            }
-        };
+        public ObservableCollection<Group> Groups;
 
         private GeneralSettings generalSettings = new();
 
         public GroupsPage()
         {
+            Groups = new ObservableCollection<Group>()
+            {
+                new Group()
+                {
+                    Name = "Example A",
+                    SubGroups = new ObservableCollection<SubGroup>()
+                    {
+                        new SubGroup
+                        {
+                            Name = "SubA",
+                            Channels = new ObservableCollection<Channel>()
+                            {
+                                new Channel()
+                                {
+                                    Name="Test",
+                                    Id="int"
+                                }
+                            }
+                        }
+                    }
+                },
+                new Group()
+                {
+                    Name = "Example B",
+                    SubGroups = new ObservableCollection<SubGroup>()
+                    {
+                        new SubGroup
+                        {
+                            Name = "SubB",
+                            Channels = new ObservableCollection<Channel>()
+                        }
+                    }
+                }
+            };
+            NavigationCacheMode = NavigationCacheMode.Required;
             this.InitializeComponent();
         }
 
@@ -83,7 +86,7 @@ namespace ConfigEditor
                 ApiKey = generalSettings.ApiKey,
                 ReportType = generalSettings.ReportType,
             };
-            dialog.Content = new GeneralDialog(tempSettings);
+            dialog.Content = new GeneralDialog(tempSettings, dialog);
 
             var result = await dialog.ShowAsync();
             if (result == ContentDialogResult.Primary)
@@ -105,7 +108,8 @@ namespace ConfigEditor
             dialog.CloseButtonText = "Cancel";
             dialog.DefaultButton = ContentDialogButton.Primary;
             var name = new ReactiveString("");
-            dialog.Content = new NewGroup(name);
+            var usedNames = Groups.Select(group => group.Name).ToHashSet();
+            dialog.Content = new SimpleNew(name, usedNames, dialog);
 
             var result = await dialog.ShowAsync();
             if (result == ContentDialogResult.Primary && !string.IsNullOrEmpty(name.Value))
@@ -120,7 +124,7 @@ namespace ConfigEditor
 
         private async void OnDeleteGroup(object sender, RoutedEventArgs e)
         {
-            var groupName = (sender as MenuFlyoutItem).DataContext as string;
+            var groupName = (sender as FrameworkElement).DataContext as string;
             ContentDialog dialog = new ContentDialog();
 
             // XamlRoot must be set in the case of a ContentDialog running in a Desktop app
@@ -142,7 +146,7 @@ namespace ConfigEditor
 
         private void OnEditGroup(object sender, RoutedEventArgs e)
         {
-            var groupName = (sender as MenuFlyoutItem).DataContext as string;
+            var groupName = (sender as FrameworkElement).DataContext as string;
             Frame.Navigate(typeof(EditGroupPage), Groups.First(group => group.Name == groupName));
         }
     }
