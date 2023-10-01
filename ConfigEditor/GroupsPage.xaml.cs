@@ -18,6 +18,9 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Storage;
+using Windows.Storage.Pickers;
+using Windows.Storage.Provider;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -26,46 +29,12 @@ namespace ConfigEditor
 {
     public sealed partial class GroupsPage : Page
     {
-        public ObservableCollection<Group> Groups;
+        public ObservableCollection<Group> Groups = new();
 
         private GeneralSettings generalSettings = new();
 
         public GroupsPage()
         {
-            Groups = new ObservableCollection<Group>()
-            {
-                new Group()
-                {
-                    Name = "Example A",
-                    SubGroups = new ObservableCollection<SubGroup>()
-                    {
-                        new SubGroup
-                        {
-                            Name = "SubA",
-                            Channels = new ObservableCollection<Channel>()
-                            {
-                                new Channel()
-                                {
-                                    Name="Test",
-                                    Id="int"
-                                }
-                            }
-                        }
-                    }
-                },
-                new Group()
-                {
-                    Name = "Example B",
-                    SubGroups = new ObservableCollection<SubGroup>()
-                    {
-                        new SubGroup
-                        {
-                            Name = "SubB",
-                            Channels = new ObservableCollection<Channel>()
-                        }
-                    }
-                }
-            };
             NavigationCacheMode = NavigationCacheMode.Required;
             this.InitializeComponent();
         }
@@ -148,6 +117,52 @@ namespace ConfigEditor
         {
             var groupName = (sender as FrameworkElement).DataContext as string;
             Frame.Navigate(typeof(EditGroupPage), Groups.First(group => group.Name == groupName));
+        }
+
+        private async void OnSave(object sender, RoutedEventArgs e)
+        {
+            // Create a file picker
+            var savePicker = new FileSavePicker();
+
+            // Retrieve the window handle (HWND) of the current WinUI 3 window.
+            var window = (Application.Current as App).m_window;
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
+
+            // Initialize the file picker with the window handle (HWND).
+            WinRT.Interop.InitializeWithWindow.Initialize(savePicker, hWnd);
+
+            savePicker.FileTypeChoices.Add("JSON", new List<string>() { ".json" });
+            savePicker.SuggestedFileName = "config.json";
+
+            var storageFile = await savePicker.PickSaveFileAsync();
+            if (storageFile != null)
+            {
+                using var stream = await storageFile.OpenStreamForWriteAsync();
+                await IO.SaveToFile(generalSettings, Groups, stream);
+            }
+        }
+
+        private async void OnLoad(object sender, RoutedEventArgs e)
+        {
+            // Create a file picker
+            var openPicker = new FileOpenPicker();
+
+            // Retrieve the window handle (HWND) of the current WinUI 3 window.
+            var window = (Application.Current as App).m_window;
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
+
+            // Initialize the file picker with the window handle (HWND).
+            WinRT.Interop.InitializeWithWindow.Initialize(openPicker, hWnd);
+
+            openPicker.FileTypeFilter.Add(".json");
+
+            var storageFile = await openPicker.PickSingleFileAsync();
+            if (storageFile != null)
+            {
+                using var stream = await storageFile.OpenStreamForReadAsync();
+                (generalSettings, Groups) = await IO.ReadFromFile(stream);
+                list.ItemsSource = Groups;
+            }
         }
     }
 }

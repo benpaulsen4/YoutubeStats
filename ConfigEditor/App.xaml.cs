@@ -63,6 +63,6 @@ namespace ConfigEditor
             throw new Exception("Failed to load Page " + e.SourcePageType.FullName);
         }
 
-        private Window m_window;
+        public Window m_window { get; private set; }
     }
 }

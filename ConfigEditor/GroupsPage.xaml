@@ -14,7 +14,7 @@
         <StackPanel Orientation="Horizontal" Margin="10,10,10,5" HorizontalAlignment="Right">
             <Button Content="Add Group" Click="ShowAddGroup"/>
         </StackPanel>
-        <ListView ItemsSource="{x:Bind Groups}" Margin="10,5,10,5" Height="326" Width="329">
+        <ListView Name="list" ItemsSource="{x:Bind Groups}" Margin="10,5,10,5" Height="326" Width="329">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="models:Group">
                     <Grid DataContext="{x:Bind Name}" DoubleTapped="OnEditGroup">
@@ -40,9 +40,9 @@
             </ListView.ItemTemplate>
         </ListView>
         <StackPanel Orientation="Horizontal" Margin="10,5,10,10" HorizontalAlignment="Center" Spacing="10">
-            <Button Content="Load Config" />
+            <Button Content="Load Config" Click="OnLoad"/>
             <Button Content="Edit General" Click="ShowGeneral" />
-            <Button Content="Save Changes" />
+            <Button Content="Save Changes" Click="OnSave"/>
         </StackPanel>
     </StackPanel>
 </Page>
