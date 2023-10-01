@@ -36,7 +36,7 @@
         </DataTemplate>
         <DataTemplate x:Key="ChannelTemplate" x:DataType="models:Channel">
             <TreeViewItem IsExpanded="False">
-                <Grid>
+                <Grid DataContext="{x:Bind Name}" DoubleTapped="OnEditChannel">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>

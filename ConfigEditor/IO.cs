@@ -37,7 +37,7 @@ public static class IO
     {
         var file = await JsonSerializer.DeserializeAsync<Dictionary<string, JsonElement>>(stream);
         var settings = JsonSerializer.Deserialize<GeneralSettings>(file["general"]);
-        var groups = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, Channel[]>>>(file["groups"]);
+        var groups = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, Channel[]>>>(file["groups"], new JsonSerializerOptions { PropertyNameCaseInsensitive = true});
 
         var groupsCollection = new ObservableCollection<Group>();
 

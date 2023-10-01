@@ -125,7 +125,12 @@ namespace ConfigEditor
                     //need to hard reset the channel
                     sub.Channels.Remove(channel);
                     sub.Channels.Add(newChannel);
-                    //todo edit csv
+
+                    dialog.Title = "Channel Name";
+                    dialog.CloseButtonText = "Ok";
+                    dialog.PrimaryButtonText = null;
+                    dialog.Content = "Editing a channel's name will break existing data that has been collected. Make sure to also change the name of the channel in the CSV header for this subgroup.";
+                    await dialog.ShowAsync();
                 } 
                 else
                 {
