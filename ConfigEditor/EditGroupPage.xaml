@@ -1,99 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <Page
-    x:Class="ConfigEditor.EditGroupPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:ConfigEditor"
-    xmlns:models="using:ConfigEditor.Models"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    Background="Transparent"
-    >
+  x:Class="ConfigEditor.EditGroupPage"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:local="using:ConfigEditor"
+  xmlns:models="using:ConfigEditor.Models"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  mc:Ignorable="d"
+  Background="Transparent">
 
-    <Page.Resources>
-        <DataTemplate x:Key="SubTemplate" x:DataType="models:SubGroup">
-            <TreeViewItem ItemsSource="{x:Bind Channels}" IsExpanded="True">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="35"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="{x:Bind Name}" />
-                    <Button Grid.Column="1" Padding="3,0,3,0" Margin="0,0,5,0">
-                        <FontIcon Glyph="&#xE712;" />
-                        <Button.Flyout>
-                            <MenuFlyout>
-                                <MenuFlyoutItem DataContext="{x:Bind Name}" Text="Delete" Icon="Delete" Click="OnDeleteSubGroup" />
-                            </MenuFlyout>
-                        </Button.Flyout>
-                    </Button>
-                </Grid>
-            </TreeViewItem>
-        </DataTemplate>
-        <DataTemplate x:Key="ChannelTemplate" x:DataType="models:Channel">
-            <TreeViewItem IsExpanded="False">
-                <Grid DataContext="{x:Bind Name}" DoubleTapped="OnEditChannel">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="35"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="{x:Bind Name}" />
-                    <Button Grid.Column="1" Padding="3,0,3,0" Margin="0,0,5,0">
-                        <FontIcon Glyph="&#xE712;" />
-                        <Button.Flyout>
-                            <MenuFlyout>
-                                <MenuFlyoutItem DataContext="{x:Bind Name}" Text="Edit" Icon="Edit" Click="OnEditChannel" />
-                                <MenuFlyoutItem DataContext="{x:Bind Name}" Text="Delete" Icon="Delete" Click="OnDeleteChannel" />
-                            </MenuFlyout>
-                        </Button.Flyout>
-                    </Button>
-                </Grid>
-            </TreeViewItem>
-        </DataTemplate>
-        <local:TemplateSelector x:Key="TemplateSelector" SubTemplate="{StaticResource SubTemplate}" ChannelTemplate="{StaticResource ChannelTemplate}" />
-    </Page.Resources>
-
-    <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-        <Grid Margin="10,20,10,5">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="50"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Click="OnGoBack" Padding="7,7,7,7">
-                <FontIcon Glyph="&#xE72B;" FontSize="16" />
-            </Button>
-            <StackPanel Grid.Column="1" Orientation="Horizontal"  HorizontalAlignment="Right" Spacing="10">
-                <Button Name="addSubButton" Click="ShowAddSub">
-                    <StackPanel Orientation="Horizontal" Spacing="5">
-                        <FontIcon Glyph="&#xE710;" FontSize="14" />
-                        <TextBlock Text="Sub Group" />
-                    </StackPanel>
-                </Button>
-                <Button Click="ShowAddChannel">
-                    <StackPanel Orientation="Horizontal" Spacing="5">
-                        <FontIcon Glyph="&#xE710;" FontSize="14" />
-                        <TextBlock Text="Creator" />
-                    </StackPanel>
-                </Button>
-            </StackPanel>
-            <TeachingTip Name="tip"
-                Target="{x:Bind addSubButton}"
-                Title="Create a subgroup"
-                Subtitle="Before adding creators, make a subgroup for them to join. Its best to put channels of similar size into subgroups."
-            />
+  <Page.Resources>
+    <DataTemplate x:Key="SubTemplate" x:DataType="models:SubGroup">
+      <TreeViewItem ItemsSource="{x:Bind Channels}" IsExpanded="True">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="35" />
+          </Grid.ColumnDefinitions>
+          <TextBlock Grid.Column="0" Text="{x:Bind Name}" />
+          <Button Grid.Column="1" Padding="3,0,3,0" Margin="0,0,5,0">
+            <FontIcon Glyph="&#xE712;" />
+            <Button.Flyout>
+              <MenuFlyout>
+                <MenuFlyoutItem DataContext="{x:Bind Name}" Text="Delete" Icon="Delete" Click="OnDeleteSubGroup" />
+              </MenuFlyout>
+            </Button.Flyout>
+          </Button>
         </Grid>
-        <TreeView ItemsSource="{x:Bind group.SubGroups}" ItemTemplateSelector="{StaticResource TemplateSelector}" Margin="10,5,10,5" Height="410" Width="400">
-        </TreeView>
+      </TreeViewItem>
+    </DataTemplate>
+    <DataTemplate x:Key="ChannelTemplate" x:DataType="models:Channel">
+      <TreeViewItem IsExpanded="False">
+        <Grid DataContext="{x:Bind Name}" DoubleTapped="OnEditChannel">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="35" />
+          </Grid.ColumnDefinitions>
+          <TextBlock Grid.Column="0" Text="{x:Bind Name}" />
+          <Button Grid.Column="1" Padding="3,0,3,0" Margin="0,0,5,0">
+            <FontIcon Glyph="&#xE712;" />
+            <Button.Flyout>
+              <MenuFlyout>
+                <MenuFlyoutItem DataContext="{x:Bind Name}" Text="Edit" Icon="Edit" Click="OnEditChannel" />
+                <MenuFlyoutItem DataContext="{x:Bind Name}" Text="Delete" Icon="Delete" Click="OnDeleteChannel" />
+              </MenuFlyout>
+            </Button.Flyout>
+          </Button>
+        </Grid>
+      </TreeViewItem>
+    </DataTemplate>
+    <local:TemplateSelector x:Key="TemplateSelector" SubTemplate="{StaticResource SubTemplate}"
+                            ChannelTemplate="{StaticResource ChannelTemplate}" />
+  </Page.Resources>
 
-    </StackPanel>
+  <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+    <Grid Margin="10,20,10,5">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*" />
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="50" />
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
+      <Button Grid.Column="0" Click="OnGoBack" Padding="7,7,7,7">
+        <FontIcon Glyph="&#xE72B;" FontSize="16" />
+      </Button>
+      <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+        <Button Name="addSubButton" Click="ShowAddSub">
+          <StackPanel Orientation="Horizontal" Spacing="5">
+            <FontIcon Glyph="&#xE710;" FontSize="14" />
+            <TextBlock Text="Sub Group" />
+          </StackPanel>
+        </Button>
+        <Button Click="ShowAddChannel">
+          <StackPanel Orientation="Horizontal" Spacing="5">
+            <FontIcon Glyph="&#xE710;" FontSize="14" />
+            <TextBlock Text="Creator" />
+          </StackPanel>
+        </Button>
+      </StackPanel>
+      <TeachingTip Name="tip"
+                   Target="{x:Bind addSubButton}"
+                   Title="Create a subgroup"
+                   Subtitle="Before adding creators, make a subgroup for them to join. Its best to put channels of similar size into subgroups." />
+    </Grid>
+    <TreeView ItemsSource="{x:Bind group.SubGroups}" ItemTemplateSelector="{StaticResource TemplateSelector}"
+              Margin="10,5,10,5" Height="410" Width="400">
+    </TreeView>
+
+  </StackPanel>
 </Page>
+

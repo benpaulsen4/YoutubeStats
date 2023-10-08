@@ -1,84 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Page
-    x:Class="ConfigEditor.GroupsPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:ConfigEditor"
-    xmlns:models="using:ConfigEditor.Models"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    Background="Transparent">
 
-    <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-        <StackPanel Orientation="Horizontal" Margin="10,20,10,5" HorizontalAlignment="Right">
-            <Button Name="addGroupButton" Click="ShowAddGroup">
-                <StackPanel Orientation="Horizontal" Spacing="5">
-                    <FontIcon Glyph="&#xE710;" FontSize="14" />
-                    <TextBlock Text="Group" />
-                </StackPanel>
-            </Button>
-            <TeachingTip Name="tip1"
-                Target="{x:Bind addGroupButton}"
-                Title="Getting Started"
-                Subtitle="Add a creator group to get started!"
-            />
+<Page
+  x:Class="ConfigEditor.GroupsPage"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:local="using:ConfigEditor"
+  xmlns:models="using:ConfigEditor.Models"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  mc:Ignorable="d"
+  Background="Transparent">
+
+  <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+    <StackPanel Orientation="Horizontal" Margin="10,20,10,5" HorizontalAlignment="Right">
+      <Button Name="addGroupButton" Click="ShowAddGroup">
+        <StackPanel Orientation="Horizontal" Spacing="5">
+          <FontIcon Glyph="&#xE710;" FontSize="14" />
+          <TextBlock Text="Group" />
         </StackPanel>
-        <ListView Name="list" ItemsSource="{x:Bind Groups}" Margin="10,5,10,5" Height="370" Width="400">
-            <ListView.ItemTemplate>
-                <DataTemplate x:DataType="models:Group">
-                    <Grid DataContext="{x:Bind Name}" DoubleTapped="OnEditGroup">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="30"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{x:Bind Name}" />
-                        <Button Grid.Column="1" Padding="3,0,3,0">
-                            <FontIcon Glyph="&#xE712;" />
-                            <Button.Flyout>
-                                <MenuFlyout>
-                                    <MenuFlyoutItem DataContext="{x:Bind Name}" Text="Edit" Icon="Edit" Click="OnEditGroup" />
-                                    <MenuFlyoutItem DataContext="{x:Bind Name}" Text="Delete" Icon="Delete" Click="OnDeleteGroup" />
-                                </MenuFlyout>
-                            </Button.Flyout>
-                        </Button>
-                    </Grid>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-        <StackPanel Orientation="Horizontal" Margin="10,5,10,10" HorizontalAlignment="Stretch" Spacing="55">
-            <Button Name="loadButton" Click="OnLoad">
-                <StackPanel Orientation="Horizontal" Spacing="5">
-                    <FontIcon Glyph="&#xE8E5;" FontSize="14" />
-                    <TextBlock Text="Load" />
-                </StackPanel>
-            </Button>
-            <Button Click="ShowGeneral" >
-                <StackPanel Orientation="Horizontal" Spacing="5">
-                    <FontIcon Glyph="&#xE713;" FontSize="14" />
-                    <TextBlock Text="General Settings" />
-                </StackPanel>
-            </Button>
-            <Button Name="saveButton" Click="OnSave" IsEnabled="False">
-                <StackPanel Orientation="Horizontal" Spacing="5">
-                    <FontIcon Glyph="&#xE74E;" FontSize="14" />
-                    <TextBlock Text="Save" />
-                </StackPanel>
-            </Button>
-        </StackPanel>
-        <TeachingTip Name="tip2"
-            Target="{x:Bind loadButton}"
-            Title="Already have a file?"
-            Subtitle="You can load an existing config file here"
-        />
-        <TeachingTip Name="tip3"
-            Target="{x:Bind saveButton}"
-            Title="Saving"
-            Subtitle="To be able to save, you need to set general settings as well as have at least 1 creator"
-            IsLightDismissEnabled="True"
-        />
+      </Button>
+      <TeachingTip Name="tip1"
+                   Target="{x:Bind addGroupButton}"
+                   Title="Getting Started"
+                   Subtitle="Add a creator group to get started!" />
     </StackPanel>
+    <ListView Name="list" ItemsSource="{x:Bind Groups}" Margin="10,5,10,5" Height="370" Width="400">
+      <ListView.ItemTemplate>
+        <DataTemplate x:DataType="models:Group">
+          <Grid DataContext="{x:Bind Name}" DoubleTapped="OnEditGroup">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="30" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="{x:Bind Name}" />
+            <Button Grid.Column="1" Padding="3,0,3,0">
+              <FontIcon Glyph="&#xE712;" />
+              <Button.Flyout>
+                <MenuFlyout>
+                  <MenuFlyoutItem DataContext="{x:Bind Name}" Text="Edit" Icon="Edit" Click="OnEditGroup" />
+                  <MenuFlyoutItem DataContext="{x:Bind Name}" Text="Delete" Icon="Delete" Click="OnDeleteGroup" />
+                </MenuFlyout>
+              </Button.Flyout>
+            </Button>
+          </Grid>
+        </DataTemplate>
+      </ListView.ItemTemplate>
+    </ListView>
+    <StackPanel Orientation="Horizontal" Margin="10,5,10,10" HorizontalAlignment="Stretch" Spacing="55">
+      <Button Name="loadButton" Click="OnLoad">
+        <StackPanel Orientation="Horizontal" Spacing="5">
+          <FontIcon Glyph="&#xE8E5;" FontSize="14" />
+          <TextBlock Text="Load" />
+        </StackPanel>
+      </Button>
+      <Button Click="ShowGeneral">
+        <StackPanel Orientation="Horizontal" Spacing="5">
+          <FontIcon Glyph="&#xE713;" FontSize="14" />
+          <TextBlock Text="General Settings" />
+        </StackPanel>
+      </Button>
+      <Button Name="saveButton" Click="OnSave" IsEnabled="False">
+        <StackPanel Orientation="Horizontal" Spacing="5">
+          <FontIcon Glyph="&#xE74E;" FontSize="14" />
+          <TextBlock Text="Save" />
+        </StackPanel>
+      </Button>
+    </StackPanel>
+    <TeachingTip Name="tip2"
+                 Target="{x:Bind loadButton}"
+                 Title="Already have a file?"
+                 Subtitle="You can load an existing config file here" />
+    <TeachingTip Name="tip3"
+                 Target="{x:Bind saveButton}"
+                 Title="Saving"
+                 Subtitle="To be able to save, you need to set general settings as well as have at least 1 creator"
+                 IsLightDismissEnabled="True" />
+  </StackPanel>
 </Page>
