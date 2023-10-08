@@ -8,13 +8,23 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="Transparent">
 
-    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
-        <StackPanel Orientation="Horizontal" Margin="10,10,10,5" HorizontalAlignment="Right">
-            <Button Content="Add Group" Click="ShowAddGroup"/>
+    <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+        <StackPanel Orientation="Horizontal" Margin="10,20,10,5" HorizontalAlignment="Right">
+            <Button Name="addGroupButton" Click="ShowAddGroup">
+                <StackPanel Orientation="Horizontal" Spacing="5">
+                    <FontIcon Glyph="&#xE710;" FontSize="14" />
+                    <TextBlock Text="Group" />
+                </StackPanel>
+            </Button>
+            <TeachingTip Name="tip1"
+                Target="{x:Bind addGroupButton}"
+                Title="Getting Started"
+                Subtitle="Add a creator group to get started!"
+            />
         </StackPanel>
-        <ListView Name="list" ItemsSource="{x:Bind Groups}" Margin="10,5,10,5" Height="326" Width="329">
+        <ListView Name="list" ItemsSource="{x:Bind Groups}" Margin="10,5,10,5" Height="370" Width="400">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="models:Group">
                     <Grid DataContext="{x:Bind Name}" DoubleTapped="OnEditGroup">
@@ -39,10 +49,36 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        <StackPanel Orientation="Horizontal" Margin="10,5,10,10" HorizontalAlignment="Center" Spacing="10">
-            <Button Content="Load Config" Click="OnLoad"/>
-            <Button Content="Edit General" Click="ShowGeneral" />
-            <Button Content="Save Changes" Click="OnSave"/>
+        <StackPanel Orientation="Horizontal" Margin="10,5,10,10" HorizontalAlignment="Stretch" Spacing="55">
+            <Button Name="loadButton" Click="OnLoad">
+                <StackPanel Orientation="Horizontal" Spacing="5">
+                    <FontIcon Glyph="&#xE8E5;" FontSize="14" />
+                    <TextBlock Text="Load" />
+                </StackPanel>
+            </Button>
+            <Button Click="ShowGeneral" >
+                <StackPanel Orientation="Horizontal" Spacing="5">
+                    <FontIcon Glyph="&#xE713;" FontSize="14" />
+                    <TextBlock Text="General Settings" />
+                </StackPanel>
+            </Button>
+            <Button Name="saveButton" Click="OnSave" IsEnabled="False">
+                <StackPanel Orientation="Horizontal" Spacing="5">
+                    <FontIcon Glyph="&#xE74E;" FontSize="14" />
+                    <TextBlock Text="Save" />
+                </StackPanel>
+            </Button>
         </StackPanel>
+        <TeachingTip Name="tip2"
+            Target="{x:Bind loadButton}"
+            Title="Already have a file?"
+            Subtitle="You can load an existing config file here"
+        />
+        <TeachingTip Name="tip3"
+            Target="{x:Bind saveButton}"
+            Title="Saving"
+            Subtitle="To be able to save, you need to set general settings as well as have at least 1 creator"
+            IsLightDismissEnabled="True"
+        />
     </StackPanel>
 </Page>

@@ -8,7 +8,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    Background="Transparent"
     >
 
     <Page.Resources>
@@ -60,8 +60,8 @@
         <local:TemplateSelector x:Key="TemplateSelector" SubTemplate="{StaticResource SubTemplate}" ChannelTemplate="{StaticResource ChannelTemplate}" />
     </Page.Resources>
 
-    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
-        <Grid Margin="10,10,10,5">
+    <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+        <Grid Margin="10,20,10,5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
@@ -73,11 +73,26 @@
                 <FontIcon Glyph="&#xE72B;" FontSize="16" />
             </Button>
             <StackPanel Grid.Column="1" Orientation="Horizontal"  HorizontalAlignment="Right" Spacing="10">
-                <Button Content="Add Sub Group" Click="ShowAddSub" />
-                <Button Content="Add Creator" Click="ShowAddChannel" />
+                <Button Name="addSubButton" Click="ShowAddSub">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <FontIcon Glyph="&#xE710;" FontSize="14" />
+                        <TextBlock Text="Sub Group" />
+                    </StackPanel>
+                </Button>
+                <Button Click="ShowAddChannel">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <FontIcon Glyph="&#xE710;" FontSize="14" />
+                        <TextBlock Text="Creator" />
+                    </StackPanel>
+                </Button>
             </StackPanel>
+            <TeachingTip Name="tip"
+                Target="{x:Bind addSubButton}"
+                Title="Create a subgroup"
+                Subtitle="Before adding creators, make a subgroup for them to join. Its best to put channels of similar size into subgroups."
+            />
         </Grid>
-        <TreeView ItemsSource="{x:Bind group.SubGroups}" ItemTemplateSelector="{StaticResource TemplateSelector}" Margin="10,5,10,5" Height="326" Width="329">
+        <TreeView ItemsSource="{x:Bind group.SubGroups}" ItemTemplateSelector="{StaticResource TemplateSelector}" Margin="10,5,10,5" Height="410" Width="400">
         </TreeView>
 
     </StackPanel>

@@ -35,14 +35,22 @@ namespace ConfigEditor
             this.InitializeComponent();
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             group = e.Parameter as Models.Group;
             base.OnNavigatedTo(e);
+
+            if (group.SubGroups.Count == 0)
+            {
+                await Task.Delay(200);
+                tip.IsOpen = true;
+            }
         }
 
         private async void ShowAddSub(object sender, RoutedEventArgs e)
         {
+            tip.IsOpen = false;
+
             ContentDialog dialog = new ContentDialog();
 
             // XamlRoot must be set in the case of a ContentDialog running in a Desktop app

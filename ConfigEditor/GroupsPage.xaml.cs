@@ -37,6 +37,15 @@ namespace ConfigEditor
         {
             NavigationCacheMode = NavigationCacheMode.Required;
             this.InitializeComponent();
+
+            ShowMainTips();
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+            UpdateValidity();
+            if (e.NavigationMode == NavigationMode.Back) ShowSaveTip();
         }
 
         private async void ShowGeneral(object sender, RoutedEventArgs e)
@@ -61,12 +70,16 @@ namespace ConfigEditor
             if (result == ContentDialogResult.Primary)
             {
                 generalSettings = tempSettings;
+                UpdateValidity();
             }
 
         }
 
         private async void ShowAddGroup(object sender, RoutedEventArgs e)
         {
+            tip1.IsOpen = false;
+            tip2.IsOpen = false;
+
             ContentDialog dialog = new ContentDialog();
 
             // XamlRoot must be set in the case of a ContentDialog running in a Desktop app
@@ -144,6 +157,9 @@ namespace ConfigEditor
 
         private async void OnLoad(object sender, RoutedEventArgs e)
         {
+            tip1.IsOpen = false;
+            tip2.IsOpen = false;
+
             // Create a file picker
             var openPicker = new FileOpenPicker();
 
@@ -162,6 +178,30 @@ namespace ConfigEditor
                 using var stream = await storageFile.OpenStreamForReadAsync();
                 (generalSettings, Groups) = await IO.ReadFromFile(stream);
                 list.ItemsSource = Groups;
+                UpdateValidity();
+            }
+        }
+
+        private void UpdateValidity()
+        {
+            saveButton.IsEnabled = generalSettings.ApiKey != null && generalSettings.ReportType != null && Groups.Any(group => group.SubGroups.Any(sub => sub.Channels.Any()));
+            
+        }
+
+        private async void ShowMainTips()
+        {
+            //known bug in winui https://github.com/microsoft/microsoft-ui-xaml/issues/7937
+            await Task.Delay(100);
+            tip1.IsOpen = true;
+            tip2.IsOpen = true;
+        }
+
+        private async void ShowSaveTip()
+        {
+            if (!saveButton.IsEnabled)
+            {
+                await Task.Delay(200);
+                tip3.IsOpen = true;
             }
         }
     }
