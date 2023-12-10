@@ -14,7 +14,9 @@ var globalSpinner = AnsiConsole.Status().Spinner(Spinner.Known.Dots).SpinnerStyl
 const string configLocation = @"config.json";
 
 JObject config = JObject.Parse(File.ReadAllText(configLocation));
-var groups = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, ChannelSummary[]>>>(config["groups"]?.ToString() ?? throw new ArgumentNullException("Groups", "Config missing groups or incorrectly configured"));
+var groups = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, ChannelSummary[]>>>(
+    config["groups"]?.ToString() ??
+    throw new ArgumentNullException("Groups", "Config missing groups or incorrectly configured"));
 var noWait = false;
 
 if (args.Contains("--undo"))
@@ -62,16 +64,18 @@ globalSpinner.Start("Parsing Config...", context =>
 
 if (channelsWithHandles.Any())
 {
-    AnsiConsole.MarkupLine("[yellow]:warning: [b]Warning:[/] Channel handles (usernames with @ at the beginning) detected in config file. We will now attempt to convert them to Youtube IDs." +
-        " [u]Please note[/] that this uses an external service not affiliated with Youtube, use at your own risk! \n\nThis will also update your config file to replace the handles with IDs," +
-        " it is recommended that you backup your config file in case of a failure. [/]");
+    AnsiConsole.MarkupLine(
+        "[yellow]:warning: [b]Warning:[/] Channel handles (usernames with @ at the beginning) detected in config file. We will now attempt to convert them to Youtube IDs." +
+        " This will also update your config file to replace the handles with IDs, it is recommended that you backup your config file in case of a failure. [/]");
     AnsiConsole.WriteLine();
 
     if (!AnsiConsole.Confirm("Would you like to continue?")) Environment.Exit(1);
 
     await globalSpinner.StartAsync("Resolving Youtube handles...", async context =>
     {
-        await HandleResolver.ResolveHandles(channelsWithHandles);
+        var handleResolver = new LocalHandleResolver();
+
+        await handleResolver.ResolveHandles(channelsWithHandles);
 
         context.Status("Updating config...");
 
@@ -84,7 +88,8 @@ if (channelsWithHandles.Any())
 var service = new YouTubeService(new BaseClientService.Initializer
 {
     ApplicationName = "Youtube Stats",
-    ApiKey = config["general"]?["apiKey"]?.ToString() ?? throw new ArgumentNullException("API key", "Config missing API key or incorrectly configured")
+    ApiKey = config["general"]?["apiKey"]?.ToString() ??
+             throw new ArgumentNullException("API key", "Config missing API key or incorrectly configured")
 });
 
 var parts = new List<string> { "statistics" };
@@ -112,7 +117,9 @@ await globalSpinner.StartAsync("Querying Youtube API...", async context =>
         }
     }
 
-    var reportType = config["general"]?["reportType"]?.ToString() ?? throw new ArgumentNullException("Report type", "Config missing report type or incorrectly configured");
+    var reportType = config["general"]?["reportType"]?.ToString() ??
+                     throw new ArgumentNullException("Report type",
+                         "Config missing report type or incorrectly configured");
 
     var reporting = new ReportingService(channels.ToArray(), subGroups, context);
 
@@ -145,7 +152,9 @@ await globalSpinner.StartAsync("Querying Youtube API...", async context =>
             break;
         default:
             throw new InvalidOperationException("Unknown report type");
-    };
+    }
+
+    ;
 });
 
 AnsiConsole.WriteLine();
