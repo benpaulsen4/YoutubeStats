@@ -1,12 +1,14 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace YoutubeStats.Models
 {
     public class ChannelSummary : IComparable<ChannelSummary>
     {
-        public string Id { get; set; } = null!;
-        public string Name { get; set; } = null!;
-        public bool? IgnoreInAverage { get; set; }
+        [JsonPropertyName("id")] public string Id { get; set; } = null!;
+
+        [JsonPropertyName("name")] public string Name { get; set; } = null!;
+
+        [JsonPropertyName("ignoreInAverage")] public bool? IgnoreInAverage { get; set; }
         [JsonIgnore] public int? SubscriberCount { get; set; }
         [JsonIgnore] public string? SubGroup { get; set; }
 

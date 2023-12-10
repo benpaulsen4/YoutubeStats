@@ -25,11 +25,12 @@ As part of v2, the console report has been beautified for improved viewability a
 
 ### Errors
 If you encounter an error, it could either be a bug or an issue with your configuration. Here are some potential errors and what they mean:
-- "Config missing API key or incorrectly configured" (or similar): You have not included your YouTube API key or the key is not specified correctly in the config file
-- "Config missing groups or incorrectly configured": The creators could not be read from your config file, you have probably formatted it incorrectly (see `config.example.json`)
+
+- Any `ArgumentNullException`: Your config file is misconfigured, refer to the field mentioned in the message
 - "statistics.SubscriberCount is null" (or similar): The API didn't return information for a channel you requested, make sure every ID is correct
-- "Config missing report type or incorrectly configured" / "Unknown report type": You have not specified a report type to generate correctly
-- "Unable to read/write file/folder" (or similar): Something prevented the app from accessing a data file in the Results folder, probably OS permissions related
+- "Unknown report type": You have not specified a valid report type
+- "Unable to read/write file/folder" (or any `System.IOException`): Something prevented the app from accessing a data
+  file in the Results folder, probably OS permissions related
 - "Error generating <name> sub-group/group graph: Xs and Ys are not of the same length": The charting library failed to read the data stored in the CSVs to generate this graph, probably because of a limitation in how files are read (see 'Limitations')
 - "Error generating <name> sub-group/group graph: Initialization failed": The charting library failed to draw the graph due to missing `System.Drawing.Common` dependency. This occurs on non-Windows operating systems and will be addressed in a future version
 

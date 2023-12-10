@@ -9,8 +9,8 @@
     // CSV - will get current subscriber counts of creators listed and output them to console, *as well as* write these values in CSV format to the 'Results' folder for storage
     // Analytics - will do everything the CSV report does, *as well as* display the sub-group average and % change from the previous record in the console as read from the CSV (if it exists). 
     //  It will also generate PNG graphs of the subscriber count change over time for each sub-group, and sub-group average graphs for each group using CSV data. 
-    // Analytics-saved - is a standard analytics report, except instead of writing the output to console it saves it as a JSON file in `/Results/Analytics/{date}.json`
-    "reportType": "analytics"
+    // AnalyticsSaved - is a standard analytics report, except instead of writing the output to console it saves it as a JSON file in `/Results/Analytics/{date}.json`
+    "reportType": "Analytics"
   },
   //This section defines the groups of YouTube creators to collect information on, it *must* follow the format:
   // "groups": {

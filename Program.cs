@@ -1,7 +1,6 @@
-﻿using Google.Apis.Services;
+﻿using System.Text.Json;
+using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Spectre.Console;
 using YoutubeStats;
 using YoutubeStats.Models;
@@ -13,18 +12,19 @@ var globalSpinner = AnsiConsole.Status().Spinner(Spinner.Known.Dots).SpinnerStyl
 
 const string configLocation = @"config.json";
 
-JObject config = JObject.Parse(File.ReadAllText(configLocation));
-var groups = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, ChannelSummary[]>>>(
-    config["groups"]?.ToString() ??
-    throw new ArgumentNullException("Groups", "Config missing groups or incorrectly configured"));
+var readStream = File.OpenRead(configLocation);
+var config = await JsonSerializer.DeserializeAsync<Configuration>(readStream);
+await readStream.DisposeAsync();
+
+if (config == null) throw new ArgumentException("Config incorrectly configured");
+ConfigurationValidator.Validate(config);
+
 var noWait = false;
 
 if (args.Contains("--undo"))
 {
-    if (groups == null) throw new ArgumentException("Config missing groups or incorrectly configured");
-
     var baseDirectory = Directory.GetCurrentDirectory();
-    foreach (var group in groups)
+    foreach (var group in config.Groups)
     {
         Directory.SetCurrentDirectory($"{baseDirectory}/Results/{group.Key}");
 
@@ -46,9 +46,9 @@ var channelsWithHandles = new List<ChannelSummary>();
 
 globalSpinner.Start("Parsing Config...", context =>
 {
-    foreach (var group in groups!)
+    foreach (var group in config.Groups)
     {
-        subGroups.Add(group.Key, group.Value.Select(subGroups => subGroups.Key).ToArray());
+        subGroups.Add(group.Key, group.Value.Select(innerSubGroups => innerSubGroups.Key).ToArray());
         foreach (var subGroup in group.Value)
         {
             foreach (var channel in subGroup.Value)
@@ -62,7 +62,7 @@ globalSpinner.Start("Parsing Config...", context =>
     }
 });
 
-if (channelsWithHandles.Any())
+if (channelsWithHandles.Count != 0)
 {
     AnsiConsole.MarkupLine(
         "[yellow]:warning: [b]Warning:[/] Channel handles (usernames with @ at the beginning) detected in config file. We will now attempt to convert them to Youtube IDs." +
@@ -79,17 +79,17 @@ if (channelsWithHandles.Any())
 
         context.Status("Updating config...");
 
-        var configUpdater = new ConfigUpdater(configLocation, config);
-
-        configUpdater.UpdateGroups(groups);
+        File.Delete(configLocation);
+        var writeStream = File.OpenWrite(configLocation);
+        await JsonSerializer.SerializeAsync(writeStream, config);
+        await writeStream.DisposeAsync();
     });
 }
 
 var service = new YouTubeService(new BaseClientService.Initializer
 {
     ApplicationName = "Youtube Stats",
-    ApiKey = config["general"]?["apiKey"]?.ToString() ??
-             throw new ArgumentNullException("API key", "Config missing API key or incorrectly configured")
+    ApiKey = config.General.ApiKey
 });
 
 var parts = new List<string> { "statistics" };
@@ -117,21 +117,19 @@ await globalSpinner.StartAsync("Querying Youtube API...", async context =>
         }
     }
 
-    var reportType = config["general"]?["reportType"]?.ToString() ??
-                     throw new ArgumentNullException("Report type",
-                         "Config missing report type or incorrectly configured");
+    var reportType = config.General.ReportType;
 
     var reporting = new ReportingService(channels.ToArray(), subGroups, context);
 
     switch (reportType)
     {
-        case "console":
+        case ReportType.Console:
             reporting.GenerateConsoleReport();
             break;
-        case "csv":
+        case ReportType.Csv:
             reporting.GenerateCsvReport();
             break;
-        case "analytics":
+        case ReportType.Analytics:
 #if !DEBUG
             try
             {
@@ -147,14 +145,12 @@ await globalSpinner.StartAsync("Querying Youtube API...", async context =>
             reporting.GenerateAnalyticsReport(false);
 #endif
             break;
-        case "analytics-saved":
+        case ReportType.AnalyticsSaved:
             reporting.GenerateAnalyticsReport(true);
             break;
         default:
             throw new InvalidOperationException("Unknown report type");
     }
-
-    ;
 });
 
 AnsiConsole.WriteLine();
