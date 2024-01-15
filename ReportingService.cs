@@ -11,7 +11,8 @@ namespace YoutubeStats
         private readonly Dictionary<string, string[]> groupStructure;
         private readonly StatusContext statusContext;
 
-        public ReportingService(ChannelSummary[] data, Dictionary<string, string[]> groupStructure, StatusContext statusContext)
+        public ReportingService(ChannelSummary[] data, Dictionary<string, string[]> groupStructure,
+            StatusContext statusContext)
         {
             this.data = data;
             this.groupStructure = groupStructure;
@@ -83,7 +84,8 @@ namespace YoutubeStats
                     var latestRow = previousResults.Where(row => row.Index == maxIndex).FirstOrDefault();
                     var previousRow = previousResults.Where(row => row.Index == maxIndex - 1).FirstOrDefault();
                     var firstRow = previousResults.Where(row => row.Index == 0).FirstOrDefault();
-                    var threeMonthsAgo = previousResults.Where(row => DateTime.Now.Subtract(row.Date) > TimeSpan.FromDays(90)).LastOrDefault();
+                    var threeMonthsAgo = previousResults
+                        .Where(row => DateTime.Now.Subtract(row.Date) > TimeSpan.FromDays(90)).LastOrDefault();
 
                     if (latestRow != null && previousRow != null)
                     {
@@ -93,7 +95,8 @@ namespace YoutubeStats
                             {
                                 if (channel.Key == prevChannel.Key)
                                 {
-                                    double percentChange = ((channel.Value - prevChannel.Value) / (double)prevChannel.Value) * 100;
+                                    double percentChange =
+                                        ((channel.Value - prevChannel.Value) / (double)prevChannel.Value) * 100;
                                     int exactChange = channel.Value - prevChannel.Value;
                                     package.Change.Add(channel.Key, (exactChange, percentChange));
                                     break;
@@ -125,7 +128,8 @@ namespace YoutubeStats
                                 }
                             }
 
-                            var MAG = package.RecentMonthlyAverageGrowth.GetNullable(channel.Key) ?? package.LifetimeMonthlyAverageGrowth.GetNullable(channel.Key);
+                            var MAG = package.RecentMonthlyAverageGrowth.GetNullable(channel.Key) ??
+                                      package.LifetimeMonthlyAverageGrowth.GetNullable(channel.Key);
                             if (MAG.HasValue)
                             {
                                 int prediction = (MAG.Value * 6) + channel.Value;
@@ -143,19 +147,29 @@ namespace YoutubeStats
                         AnsiConsole.MarkupLine($"[red]Error[/] generating {subGroup} sub-group graph: {e.Message}");
                     }
 
-                    var averageIgnored = data.Where(channel => channel.IgnoreInAverage == true).Select(channel => channel.Name).ToArray();
+                    var averageIgnored = data.Where(channel => channel.IgnoreInAverage == true)
+                        .Select(channel => channel.Name).ToArray();
 
                     foreach (var row in previousResults)
                     {
                         if (subGroupAverages.TryGetValue(row.Date, out var averages))
                         {
-                            averages.Add(subGroup, (int)row.Values.Where(channel => !averageIgnored.Contains(channel.Key)).Select(channel => channel.Value).Average());
+                            averages.Add(subGroup,
+                                (int)row.Values.Where(channel => !averageIgnored.Contains(channel.Key))
+                                    .Select(channel => channel.Value).Average());
                         }
                         else
                         {
-                            subGroupAverages.Add(row.Date, new Dictionary<string, int>() { { subGroup, (int)row.Values.Where(channel => !averageIgnored.Contains(channel.Key)).Select(channel => channel.Value).Average() } });
+                            subGroupAverages.Add(row.Date,
+                                new Dictionary<string, int>()
+                                {
+                                    {
+                                        subGroup,
+                                        (int)row.Values.Where(channel => !averageIgnored.Contains(channel.Key))
+                                            .Select(channel => channel.Value).Average()
+                                    }
+                                });
                         }
-
                     }
                 }
 
@@ -170,7 +184,9 @@ namespace YoutubeStats
             }
 
             //Highest Real Growth
-            var realGrowthWinners = package.Change.OrderByDescending(record => record.Value.actual).Take(5).Select(record => new Recipient { Name = record.Key, IntegerValue = record.Value.actual }).ToList();
+            var realGrowthWinners = package.Change
+                .OrderByDescending(record => record.Value.actual).Take(5)
+                .Select(record => new Recipient { Name = record.Key, IntegerValue = record.Value.actual }).ToList();
             var realGrowthAward = new Award
             {
                 Name = AwardType.HighestRealGrowth,
@@ -180,7 +196,9 @@ namespace YoutubeStats
             package.Awards.Add(realGrowthAward);
 
             //Highest Relative Growth
-            var relativeGrowthWinners = package.Change.OrderByDescending(record => record.Value.percentage).Take(5).Select(record => new Recipient { Name = record.Key, DoubleValue = record.Value.percentage }).ToList();
+            var relativeGrowthWinners = package.Change
+                .OrderByDescending(record => record.Value.percentage).Take(5)
+                .Select(record => new Recipient { Name = record.Key, DoubleValue = record.Value.percentage }).ToList();
             var relativeGrowthAward = new Award
             {
                 Name = AwardType.HighestRelativeGrowth,
@@ -190,7 +208,9 @@ namespace YoutubeStats
             package.Awards.Add(relativeGrowthAward);
 
             //Best Recent Performance - based on recent MAG
-            var recentPerformanceWinners = package.RecentMonthlyAverageGrowth.OrderByDescending(record => record.Value).Take(5).Select(record => new Recipient { Name = record.Key, IntegerValue = record.Value }).ToList();
+            var recentPerformanceWinners = package.RecentMonthlyAverageGrowth
+                .OrderByDescending(record => record.Value).Take(5)
+                .Select(record => new Recipient { Name = record.Key, IntegerValue = record.Value }).ToList();
             var recentPerformanceAward = new Award
             {
                 Name = AwardType.BestRecentPerformance,
@@ -200,7 +220,10 @@ namespace YoutubeStats
             package.Awards.Add(recentPerformanceAward);
 
             //Most Subscribers
-            var mostSubscribersWinners = data.OrderByDescending(channel => channel.SubscriberCount).Take(5).Select(channel => new Recipient { Name = channel.Name, IntegerValue = channel.SubscriberCount }).ToList();
+            var mostSubscribersWinners = data
+                .OrderByDescending(channel => channel.SubscriberCount).Take(5)
+                .Select(channel => new Recipient { Name = channel.Name, IntegerValue = channel.SubscriberCount })
+                .ToList();
             var mostSubscribersAward = new Award
             {
                 Name = AwardType.MostSubscribers,
@@ -210,13 +233,14 @@ namespace YoutubeStats
             package.Awards.Add(mostSubscribersAward);
 
             //Breakout Stars - based on individual creator's difference compared to their sub-group's average
-            var sgAverages = new Dictionary<string, double>();
-            foreach(var subgroup in groupStructure.Values.SelectMany(value => value))
-            {
-                sgAverages.Add(subgroup, data.Where(channel => channel.SubGroup == subgroup && channel.IgnoreInAverage != true).Average(channel => channel.SubscriberCount)!.Value);
-            }
-            var breakoutStarsWinners = data.Select(channel => (channel.Name, channel.SubscriberCount / sgAverages[channel.SubGroup!])).OrderByDescending(record => record.Item2)
-                .Take(5).Select(record => new Recipient { Name = record.Name, DoubleValue = record.Item2 }).ToList();
+            var sgAverages = groupStructure.Values.SelectMany(value => value)
+                .ToDictionary(subgroup => subgroup, subgroup =>
+                    data.Where(channel => channel.SubGroup == subgroup && channel.IgnoreInAverage != true)
+                        .Average(channel => channel.SubscriberCount)!.Value);
+            var breakoutStarsWinners = data
+                .Select(channel => (channel.Name, channel.SubscriberCount / sgAverages[channel.SubGroup!]))
+                .OrderByDescending(record => record.Item2).Take(5)
+                .Select(record => new Recipient { Name = record.Name, DoubleValue = record.Item2 }).ToList();
             var breakoutStarsAward = new Award
             {
                 Name = AwardType.BreakoutStars,
@@ -226,8 +250,12 @@ namespace YoutubeStats
             package.Awards.Add(breakoutStarsAward);
 
             //Most Improved - based on difference between recent MAG and lifetime MAG
-            var mostImprovedWinners = package.RecentMonthlyAverageGrowth.Select(record => (record.Key, record.Value / (double)package.LifetimeMonthlyAverageGrowth[record.Key]))
-                .OrderByDescending(record => record.Item2).Take(5).Select(record => new Recipient { Name = record.Key, DoubleValue = record.Item2 }).ToList();
+            //Note: Explicitly ignores channels with negative growth
+            var mostImprovedWinners = package.RecentMonthlyAverageGrowth
+                .Where(record => record.Value > 0)
+                .Select(record => (record.Key, record.Value / (double)package.LifetimeMonthlyAverageGrowth[record.Key]))
+                .OrderByDescending(record => record.Item2).Take(5)
+                .Select(record => new Recipient { Name = record.Key, DoubleValue = record.Item2 }).ToList();
             var mostImprovedAward = new Award
             {
                 Name = AwardType.MostImproved,
@@ -269,7 +297,8 @@ namespace YoutubeStats
                 var subGroups = new Dictionary<string, ChannelWithAnalytics[]>();
                 foreach (var subGroup in group.Value)
                 {
-                    subGroups.Add(subGroup, channelsWithAnalytics.Where(channel => channel.SubGroup == subGroup).ToArray());
+                    subGroups.Add(subGroup,
+                        channelsWithAnalytics.Where(channel => channel.SubGroup == subGroup).ToArray());
                 }
 
                 report.Add(group.Key, subGroups);
