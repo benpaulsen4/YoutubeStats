@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using Google.Apis.Services;
+using Google.Apis.Util;
 using Google.Apis.YouTube.v3;
 using Spectre.Console;
 using YoutubeStats;
@@ -44,7 +45,7 @@ var channels = new List<ChannelSummary>();
 var subGroups = new Dictionary<string, string[]>();
 var channelsWithHandles = new List<ChannelSummary>();
 
-globalSpinner.Start("Parsing Config...", context =>
+globalSpinner.Start("Parsing Config...", _ =>
 {
     foreach (var group in config.Groups)
     {
@@ -95,12 +96,12 @@ var service = new YouTubeService(new BaseClientService.Initializer
 var parts = new List<string> { "statistics" };
 var channelIds = channels.Select(channel => channel.Id);
 
-await globalSpinner.StartAsync("Querying Youtube API...", async context =>
+await globalSpinner.StartAsync("Querying Youtube API...", async _ =>
 {
     foreach (var chunk in channelIds.Chunk(50))
     {
-        var request = service.Channels.List(new Google.Apis.Util.Repeatable<string>(parts));
-        request.Id = new Google.Apis.Util.Repeatable<string>(chunk);
+        var request = service.Channels.List(new Repeatable<string>(parts));
+        request.Id = new Repeatable<string>(chunk);
 
         var result = await request.ExecuteAsync();
 
@@ -116,7 +117,25 @@ await globalSpinner.StartAsync("Querying Youtube API...", async context =>
             }
         }
     }
+});
 
+var unreturnedChannels = channels.Where(c => c.SubscriberCount == null).ToList();
+if (unreturnedChannels.Count > 0)
+{
+    AnsiConsole.MarkupLine(
+        "[yellow]:warning: [b]Warning:[/] The Youtube API did not respond with subscriber data for some channels (" +
+        string.Join(", ", unreturnedChannels.Select(c => c.Name)) +
+        "). This can either mean that the provided channel ID is incorrect or that the channel has been deleted. " +
+        "If you continue, these channels will have their subscriber count recorded as 0! [/]");
+    AnsiConsole.WriteLine();
+
+    if (!AnsiConsole.Confirm("Would you like to continue?")) Environment.Exit(1);
+
+    foreach (var channel in unreturnedChannels) channel.SubscriberCount = 0;
+}
+
+await globalSpinner.StartAsync("Starting report...", context =>
+{
     var reportType = config.General.ReportType;
 
     var reporting = new ReportingService(channels.ToArray(), subGroups, context);
@@ -151,6 +170,8 @@ await globalSpinner.StartAsync("Querying Youtube API...", async context =>
         default:
             throw new InvalidOperationException("Unknown report type");
     }
+
+    return Task.CompletedTask;
 });
 
 AnsiConsole.WriteLine();
